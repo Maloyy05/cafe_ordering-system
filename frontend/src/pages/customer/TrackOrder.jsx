@@ -87,8 +87,12 @@ const TrackOrder = () => {
           color: rgba(255,255,255,0.92);
           font-family: 'DM Sans', sans-serif;
         }
+        .track-content {
+          max-width: 800px;
+          margin: 0 auto;
+        }
 
-        .track-order h1 { font-family: 'Playfair Display', serif; color:#e8c97a; margin:0 0 14px; }
+        .track-content h1 { font-family: 'Playfair Display', serif; color:#e8c97a; margin:0 0 14px; }
 
         .track-order form { display:flex; gap:8px; margin-bottom:12px; }
         .track-order input[type="text"], .track-order input[type="search"] { padding:8px 10px; border-radius:8px; border:0.5px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.9); }
@@ -103,11 +107,17 @@ const TrackOrder = () => {
         .modal-card h3 { margin:0 0 8px; font-family:'Playfair Display', serif; color:#e8c97a }
         .modal-card textarea { width:100%; min-height:100px; padding:10px; border-radius:8px; background: rgba(255,255,255,0.02); border:0.5px solid rgba(255,255,255,0.06); color:rgba(255,255,255,0.92); }
 
-        @media (max-width:640px){ .track-order{padding:20px;} .modal-card{max-width:94%;} }
+        @media (max-width:640px){ 
+          .track-order{padding:20px 16px;} 
+          .track-order form { flex-direction: column; }
+          .track-order input[type="text"], .track-order input[type="search"] { width: 100%; box-sizing: border-box; }
+          .modal-card{max-width:94%;} 
+        }
       `}</style>
 
       <div className="track-order">
-        <h1>Track Order</h1>
+        <div className="track-content">
+          <h1>Track Order</h1>
       {!orderNumber && (
         <form onSubmit={handleLookup} style={{marginBottom:12}}>
           <input placeholder="Enter order number" value={input} onChange={(e)=>setInput(e.target.value)} />
@@ -200,6 +210,7 @@ const TrackOrder = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
     </>
   );

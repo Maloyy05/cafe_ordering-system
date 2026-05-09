@@ -103,24 +103,32 @@ const Checkout = () => {
           color: rgba(255,255,255,0.92);
           font-family: 'DM Sans', sans-serif;
         }
+        .checkout-content {
+          max-width: 800px;
+          margin: 0 auto;
+        }
 
-        .checkout-container h1 { font-family: 'Playfair Display', serif; color: #e8c97a; margin-bottom: 12px; }
+        .checkout-content h1 { font-family: 'Playfair Display', serif; color: #e8c97a; margin-bottom: 12px; }
 
-        .checkout-form { max-width: 780px; background: rgba(255,255,255,0.02); padding: 18px; border-radius: 12px; border: 0.5px solid rgba(232,201,122,0.06); }
+        .checkout-form { width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.02); padding: 24px; border-radius: 12px; border: 0.5px solid rgba(232,201,122,0.06); }
 
         .form-group { margin-bottom: 14px; display:flex; flex-direction:column; gap:8px; }
         .form-group label { font-size: 12px; color: rgba(232,201,122,0.7); text-transform: uppercase; letter-spacing: 0.12em; }
-        .form-group input, .form-group select, .form-group textarea { padding: 10px 12px; border-radius: 8px; border: 0.5px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.92); }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 8px; border: 0.5px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.92); }
 
-        .order-summary { margin: 12px 0; font-weight: 700; color: #e8c97a; }
+        .order-summary { margin: 16px 0; font-weight: 700; color: #e8c97a; }
 
-        .btn-primary { padding: 12px 18px; background: linear-gradient(135deg,#e8c97a,#f0d88e); color:#0f0c09; border-radius:10px; border:none; cursor:pointer; font-weight:700; }
+        .btn-primary { width: 100%; padding: 14px 18px; background: linear-gradient(135deg,#e8c97a,#f0d88e); color:#0f0c09; border-radius:10px; border:none; cursor:pointer; font-weight:700; text-transform: uppercase; letter-spacing: 0.05em;}
 
-        @media (max-width:640px){ .checkout-container{padding:20px;} .checkout-form{padding:14px;} }
+        @media (max-width:640px){ 
+          .checkout-container{padding:20px 16px;} 
+          .checkout-form{padding:16px;} 
+        }
       `}</style>
 
       <div className="checkout-container">
-        <h1>Checkout</h1>
+        <div className="checkout-content">
+          <h1>Checkout</h1>
         <form onSubmit={handleCheckout} className="checkout-form">
           <div className="form-group">
             <label>Customer Name</label>
@@ -201,6 +209,7 @@ const Checkout = () => {
           </div>
           <button type="submit" className="btn-primary">Place Order</button>
         </form>
+        </div>
       </div>
     </>
   );

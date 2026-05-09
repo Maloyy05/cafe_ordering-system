@@ -50,8 +50,12 @@ const Menu = () => {
           padding: 28px 36px;
           color: rgba(255,255,255,0.9);
         }
+        .menu-content {
+          max-width: 1200px;
+          margin: 0 auto;
+        }
 
-        .menu-container h1 {
+        .menu-content h1 {
           font-family: 'Playfair Display', serif;
           font-size: 28px;
           color: #e8c97a;
@@ -137,13 +141,16 @@ const Menu = () => {
         }
 
         @media (max-width: 640px) {
+          .menu-container { padding: 20px 16px; }
           .product-card img { height: 120px; }
-          .menu-container { padding: 20px; }
+          .product-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+          .btn-add { padding: 8px 10px; font-size: 13px; }
         }
       `}</style>
 
       <div className="menu-container">
-        <h1>Our Menu</h1>
+        <div className="menu-content">
+          <h1>Our Menu</h1>
         <div className="product-grid">
           {products.map((product) => (
             <div key={product.id} className="product-card">
@@ -162,6 +169,7 @@ const Menu = () => {
               </div>
             </div>
           ))}
+        </div>
         </div>
       </div>
     </>

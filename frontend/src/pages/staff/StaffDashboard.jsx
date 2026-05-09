@@ -147,7 +147,7 @@ const StaffDashboard = () => {
 
       <div className="staff-dashboard">
         <h1>Incoming Orders</h1>
-        <div style={{display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap'}}>
+        <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
           <select value={dateFilter} onChange={(e) => setDateFilter(e.target.value)}>
             <option value="today">Today</option>
             <option value="week">This Week</option>
@@ -164,7 +164,7 @@ const StaffDashboard = () => {
             <option value="Delivered">Delivered</option>
             <option value="Completed">Completed</option>
           </select>
-          <label style={{display: 'flex', alignItems: 'center', gap: 4}}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <input type="checkbox" checked={showCancelled} onChange={(e) => setShowCancelled(e.target.checked)} />
             Show Cancelled
           </label>
@@ -188,100 +188,100 @@ const StaffDashboard = () => {
             .filter(order => statusFilter === 'all' || order.status === statusFilter)
             .filter(order => showCancelled || order.status !== 'Cancelled')
             .map(order => (
-            <div key={order.id} className={`order-card status-${order.status.toLowerCase()}`}>
-              <div className="order-header">
-                <h3>{order.order_number}</h3>
-                <span className="order-status">{order.status}</span>
-              </div>
-              <div className="order-body">
-                <p><strong>Customer:</strong> {order.customer_name}</p>
-                {order.order_type === 'Delivery' && (
-                  <>
-                    <p><strong>Contact:</strong> {order.contact_number}</p>
-                    <p><strong>Address:</strong> {order.address}</p>
-                    <p><strong>Landmark:</strong> {order.landmark}</p>
-                    <p><strong>Payment:</strong> {order.payment_method} ({order.payment_status || 'N/A'})</p>
-                    {order.payment_proof && (
-                      <p><a href={order.payment_proof} target="_blank" rel="noreferrer">View Payment Proof</a></p>
-                    )}
-                    {order.status === 'Cancelled' && (
-                      <p><strong>Cancellation:</strong> {order.cancellation_reason || '—'}{order.cancellation_time && (
-                        <span> — {new Date(order.cancellation_time).toLocaleString()}</span>
-                      )}</p>
-                    )}
-                  </>
-                )}
-                <p><strong>Total:</strong> {formatCurrencyPHP(order.total_amount)}</p>
-                {/* Order Timestamps */}
-                <div style={{marginTop: 8, fontSize: '12px', color: 'rgba(255,255,255,0.4)'}}>
-                  <div>Placed: {new Date(order.created_at).toLocaleString()}</div>
-                  {order.delivery_started_at && <div>Delivery Started: {new Date(order.delivery_started_at).toLocaleString()}</div>}
-                  {order.delivered_at && <div>Delivered: {new Date(order.delivered_at).toLocaleString()}</div>}
-                  {order.status === 'Completed' && order.updated_at && <div>Completed: {new Date(order.updated_at).toLocaleString()}</div>}
+              <div key={order.id} className={`order-card status-${order.status.toLowerCase()}`}>
+                <div className="order-header">
+                  <h3>{order.order_number}</h3>
+                  <span className="order-status">{order.status}</span>
                 </div>
-                <div className="order-items">
-                  {order.order_items.map(item => (
-                    <div key={item.id} className="order-item">
-                      {item.products.name} x {item.quantity}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="order-actions">
-                {order.order_type === 'Delivery' && order.payment_status === 'Pending Verification' && (
-                  <>
-                    <button onClick={() => verifyPayment(order.id, 'verify')} className="btn-verify">Verify Payment</button>
-                    <button onClick={() => verifyPayment(order.id, 'reject')} className="btn-reject">Reject Payment</button>
-                  </>
-                )}
-                {order.status === 'Pending' && (
-                  <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Preparing')} className="btn-preparing">Start Preparing</button>
-                )}
-
-                {order.status === 'Preparing' && (
-                  order.order_type === 'Delivery' ? (
-                    <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Out for Delivery')} className="btn-ready">Mark Out for Delivery</button>
-                  ) : order.order_type === 'Dine-in' ? (
-                    <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Served')} className="btn-ready">Mark Served</button>
-                  ) : (
-                    <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Ready for Pickup')} className="btn-ready">Mark Ready for Pickup</button>
-                  )
-                )}
-
-                {order.status === 'Ready for Pickup' && (
-                  <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Completed')} className="btn-complete">Complete Order</button>
-                )}
-
-                {order.status === 'Served' && (
-                  <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Completed')} className="btn-complete">Complete Order</button>
-                )}
-
-                {order.status === 'Out for Delivery' && (
-                  <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Delivered')} className="btn-ready">Mark Delivered</button>
-                )}
-
-                {order.status === 'Delivered' && (
-                  user && user.role === 'admin' ? (
-                    <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Completed')} className="btn-complete">Complete Order</button>
-                  ) : (
-                    <button onClick={() => toast('Waiting for admin to finalize delivery')} className="btn-complete">Awaiting Completion</button>
-                  )
-                )}
-
-                {/* generic actions dropdown for other allowed transitions */}
-                {nextActionsFor(order).length > 0 && (
-                  <div style={{marginLeft:8}}>
-                    <select disabled={updatingIds.includes(order.id)} onChange={(e) => updateStatus(order.id, e.target.value)} value="">
-                      <option value="">More...</option>
-                      {nextActionsFor(order).map(s => (
-                        <option key={s} value={s}>{s}</option>
-                      ))}
-                    </select>
+                <div className="order-body">
+                  <p><strong>Customer:</strong> {order.customer_name}</p>
+                  {order.order_type === 'Delivery' && (
+                    <>
+                      <p><strong>Contact:</strong> {order.contact_number}</p>
+                      <p><strong>Address:</strong> {order.address}</p>
+                      <p><strong>Landmark:</strong> {order.landmark}</p>
+                      <p><strong>Payment:</strong> {order.payment_method} ({order.payment_status || 'N/A'})</p>
+                      {order.payment_proof && (
+                        <p><a href={order.payment_proof} target="_blank" rel="noreferrer">View Payment Proof</a></p>
+                      )}
+                      {order.status === 'Cancelled' && (
+                        <p><strong>Cancellation:</strong> {order.cancellation_reason || '—'}{order.cancellation_time && (
+                          <span> — {new Date(order.cancellation_time).toLocaleString()}</span>
+                        )}</p>
+                      )}
+                    </>
+                  )}
+                  <p><strong>Total:</strong> {formatCurrencyPHP(order.total_amount)}</p>
+                  {/* Order Timestamps */}
+                  <div style={{ marginTop: 8, fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>
+                    <div>Placed: {new Date(order.created_at).toLocaleString()}</div>
+                    {order.delivery_started_at && <div>Delivery Started: {new Date(order.delivery_started_at).toLocaleString()}</div>}
+                    {order.delivered_at && <div>Delivered: {new Date(order.delivered_at).toLocaleString()}</div>}
+                    {order.status === 'Completed' && order.updated_at && <div>Completed: {new Date(order.updated_at).toLocaleString()}</div>}
                   </div>
-                )}
+                  <div className="order-items">
+                    {order.order_items.map(item => (
+                      <div key={item.id} className="order-item">
+                        {item.products.name} x {item.quantity}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="order-actions">
+                  {order.order_type === 'Delivery' && order.payment_status === 'Pending Verification' && (
+                    <>
+                      <button onClick={() => verifyPayment(order.id, 'verify')} className="btn-verify">Verify Payment</button>
+                      <button onClick={() => verifyPayment(order.id, 'reject')} className="btn-reject">Reject Payment</button>
+                    </>
+                  )}
+                  {order.status === 'Pending' && (
+                    <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Preparing')} className="btn-preparing">Start Preparing</button>
+                  )}
+
+                  {order.status === 'Preparing' && (
+                    order.order_type === 'Delivery' ? (
+                      <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Out for Delivery')} className="btn-ready">Mark Out for Delivery</button>
+                    ) : order.order_type === 'Dine-in' ? (
+                      <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Served')} className="btn-ready">Mark Served</button>
+                    ) : (
+                      <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Ready for Pickup')} className="btn-ready">Mark Ready for Pickup</button>
+                    )
+                  )}
+
+                  {order.status === 'Ready for Pickup' && (
+                    <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Completed')} className="btn-complete">Complete Order</button>
+                  )}
+
+                  {order.status === 'Served' && (
+                    <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Completed')} className="btn-complete">Complete Order</button>
+                  )}
+
+                  {order.status === 'Out for Delivery' && (
+                    <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Delivered')} className="btn-ready">Mark Delivered</button>
+                  )}
+
+                  {order.status === 'Delivered' && (
+                    user && user.role === 'admin' ? (
+                      <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Completed')} className="btn-complete">Complete Order</button>
+                    ) : (
+                      <button onClick={() => toast('Waiting for admin to finalize delivery')} className="btn-complete">Awaiting Completion</button>
+                    )
+                  )}
+
+                  {/* generic actions dropdown for other allowed transitions */}
+                  {nextActionsFor(order).length > 0 && (
+                    <div style={{ marginLeft: 8 }}>
+                      <select disabled={updatingIds.includes(order.id)} onChange={(e) => updateStatus(order.id, e.target.value)} value="">
+                        <option value="">More...</option>
+                        {nextActionsFor(order).map(s => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       </div>
     </>

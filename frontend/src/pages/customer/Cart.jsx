@@ -58,8 +58,12 @@ const Cart = () => {
           color: rgba(255,255,255,0.92);
           font-family: 'DM Sans', sans-serif;
         }
+        .cart-content {
+          max-width: 800px;
+          margin: 0 auto;
+        }
 
-        .cart-container h1 { font-family: 'Playfair Display', serif; color: #e8c97a; margin-bottom: 14px; }
+        .cart-content h1 { font-family: 'Playfair Display', serif; color: #e8c97a; margin-bottom: 14px; }
 
         .cart-items { display: flex; flex-direction: column; gap: 12px; margin-bottom: 18px; }
 
@@ -98,11 +102,18 @@ const Cart = () => {
           font-weight: 600;
         }
 
-        @media (max-width:640px){ .cart-container{padding:20px;} .cart-item{flex-direction:column;align-items:flex-start;} .cart-summary{flex-direction:column;align-items:flex-start;gap:8px;} }
+        @media (max-width:640px){ 
+          .cart-container{padding:20px 16px;} 
+          .cart-item{flex-direction:column;align-items:flex-start;gap:12px;} 
+          .item-actions{width:100%;justify-content:space-between;} 
+          .cart-summary{flex-direction:column;align-items:flex-start;gap:16px;} 
+          .btn-primary{width:100%;text-align:center;box-sizing:border-box;} 
+        }
       `}</style>
 
       <div className="cart-container">
-        <h1>Your Cart</h1>
+        <div className="cart-content">
+          <h1>Your Cart</h1>
         <div className="cart-items">
           {cart.map((item) => (
             <div key={item.id} className="cart-item">
@@ -122,6 +133,7 @@ const Cart = () => {
         <div className="cart-summary">
           <h2>Total: {formatCurrencyPHP(totalAmount)}</h2>
           <Link to="/checkout" className="btn-primary">Proceed to Checkout</Link>
+        </div>
         </div>
       </div>
     </>

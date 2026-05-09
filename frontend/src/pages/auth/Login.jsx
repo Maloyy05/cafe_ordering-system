@@ -288,10 +288,10 @@ const Login = () => {
         }
 
         /* ── Responsive ── */
-        @media (max-width: 640px) {
-          .brule-left  { display: none; }
-          .brule-right { width: 100%; padding: 44px 32px; border-radius: 20px; }
-          .brule-card  { border-radius: 20px; }
+        @media (max-width: 768px) {
+          .brule-card  { flex-direction: column; min-height: auto; border-radius: 20px; }
+          .brule-left  { padding: 40px 24px; border-right: none; border-bottom: 0.5px solid rgba(255,255,255,0.06); }
+          .brule-right { width: 100%; padding: 40px 24px; }
         }
       `}</style>
 
