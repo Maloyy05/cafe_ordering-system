@@ -219,8 +219,6 @@ const Login = () => {
           font-size: 14px;
           color: rgba(255,255,255,0.85);
           outline: none;
-          -webkit-appearance: none;
-          appearance: none;
           transition: border-color 0.2s, background 0.2s;
         }
 
@@ -229,16 +227,18 @@ const Login = () => {
           background: rgba(232,201,122,0.04);
         }
 
-        /* Override browser autofill to match dark theme */
+        /* ULTIMATE AUTOFILL FIX FOR ANDROID/CHROME */
         .brule-input:-webkit-autofill,
         .brule-input:-webkit-autofill:focus,
         .brule-input:-webkit-autofill:hover,
         .brule-input:-webkit-autofill:active {
-          color-scheme: dark;
-          -webkit-text-fill-color: rgba(255,255,255,0.85) !important;
+          color-scheme: dark !important;
+          -webkit-text-fill-color: #ffffff !important;
           -webkit-box-shadow: 0 0 0px 1000px #13100d inset !important;
           box-shadow: 0 0 0px 1000px #13100d inset !important;
-          transition: background-color 5000s ease-in-out 0s;
+          background-color: #13100d !important;
+          transition: background-color 5000s ease-in-out 0s !important;
+          border-radius: 10px !important;
         }
 
         .brule-input::placeholder {
@@ -261,9 +261,9 @@ const Login = () => {
           cursor: pointer;
           position: relative;
           overflow: hidden;
+          transition: background 0.2s, transform 0.1s, opacity 0.2s;
           -webkit-appearance: none;
           appearance: none;
-          transition: background 0.2s, transform 0.1s, opacity 0.2s;
         }
 
         .brule-btn:hover:not(:disabled) {
@@ -307,8 +307,10 @@ const Login = () => {
         /* ── Responsive ── */
         @media (max-width: 768px) {
           .brule-card  { flex-direction: column; min-height: auto; border-radius: 20px; box-sizing: border-box; }
-          .brule-left  { padding: 40px 24px; border-right: none; border-bottom: 0.5px solid rgba(255,255,255,0.06); box-sizing: border-box; }
-          .brule-right { width: 100%; padding: 40px 24px; box-sizing: border-box; }
+          .brule-left  { padding: 32px 20px; border-right: none; border-bottom: 0.5px solid rgba(255,255,255,0.06); box-sizing: border-box; }
+          .brule-right { width: 100%; padding: 32px 20px; box-sizing: border-box; }
+          .brule-input { padding: 14px 14px 14px 42px; font-size: 16px; border-radius: 10px !important; }
+          .brule-btn { padding: 16px 24px; font-size: 14px; border-radius: 10px !important; }
         }
       `}</style>
 
