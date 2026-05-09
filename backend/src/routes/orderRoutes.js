@@ -15,7 +15,14 @@ router.get('/track/:order_number/logs', getOrderLogs);
 // Public track endpoint by order number
 router.get('/track/:order_number', getOrderByNumber);
 // Accept optional payment_proof file when creating an order
-router.post('/', upload.single('payment_proof'), validate('createOrder'), createOrder); // Public for customers
+router.post('/', upload.single('payment_proof'), (req, res, next) => {
+  if (req.body && typeof req.body.items === 'string') {
+    try {
+      req.body.items = JSON.parse(req.body.items);
+    } catch (e) {}
+  }
+  next();
+}, validate('createOrder'), createOrder); // Public for customers
 // Public cancel endpoint (customers can cancel with reason when allowed)
 router.put('/:id/cancel', cancelOrder);
 router.put('/:id/status', authMiddleware, roleMiddleware(['admin', 'staff']), validate('updateOrderStatus'), updateOrderStatus);
