@@ -1,8 +1,11 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
+const fallbackRenderUrl = 'https://cafe-ordering-system-rp77.onrender.com';
+const base = import.meta.env.VITE_API_URL || (typeof location !== 'undefined' && location.hostname.includes('vercel.app') ? fallbackRenderUrl : 'http://localhost:5000');
+console.log('VITE_API_URL (build):', import.meta.env.VITE_API_URL, ' -> using base:', base);
 const API = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: `${base.replace(/\/$/, '')}/api`,
 });
 
 API.interceptors.request.use((config) => {
