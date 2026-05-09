@@ -19,9 +19,10 @@ const AdminDashboard = () => {
           API.get('/products'),
           API.get('/orders')
         ]);
-        // Use sales report for totalSales, but use orders list for overall order count
+        // Use sales report for totalSales
         const totalSales = (salesRes.data && salesRes.data.totalSales) ? salesRes.data.totalSales : 0;
-        const orderCount = Array.isArray(ordersRes.data) ? ordersRes.data.length : (salesRes.data && salesRes.data.orderCount) || 0;
+        // Use pagination total from /orders for the true all-time order count
+        const orderCount = (ordersRes.data && ordersRes.data.pagination) ? ordersRes.data.pagination.total : 0;
         setStats({ totalSales, orderCount });
         setProducts(productsRes.data || []);
       } catch (err) {

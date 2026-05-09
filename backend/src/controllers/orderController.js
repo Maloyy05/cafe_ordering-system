@@ -1,6 +1,7 @@
 const supabase = require('../config/supabase');
 const { v4: uuidv4 } = require('uuid');
 const jwt = require('jsonwebtoken');
+const { cache } = require('../services/cache');
 
 // Allowed transitions and role permissions
 const allowedTransitions = {
@@ -329,6 +330,13 @@ const updateOrderStatus = async (req, res, next) => {
     if (updateErr) throw updateErr;
 
     const updatedOrder = updatedRows[0];
+
+    // Clear sales cache if order is marked as Completed
+    if (status === 'Completed' || currentStatus === 'Completed') {
+      const keys = cache.keys();
+      const salesKeys = keys.filter(k => k.startsWith('sales:report'));
+      salesKeys.forEach(k => cache.del(k));
+    }
 
     // insert audit log
     try {
