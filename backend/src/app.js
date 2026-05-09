@@ -53,6 +53,13 @@ app.use('/api/auth/login', authLimiter);
 
 app.use(express.json({ limit: '10kb' })); // Limit body size for security
 
+// Backward compatibility - redirect /api/* to /api/v1/*
+app.use('/api', (req, res, next) => {
+  const newPath = req.path.replace(/^\/api/, '/api/v1');
+  req.url = newPath;
+  next();
+});
+
 // API Version 1 Routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/products', productRoutes);
@@ -62,13 +69,6 @@ app.use('/api/v1/reports', reportRoutes);
 
 // Debug routes (connectivity checks)
 app.use('/api/debug', debugRoutes);
-
-// Backward compatibility - redirect /api/* to /api/v1/*
-app.use('/api', (req, res, next) => {
-  const newPath = req.path.replace(/^\/api/, '/api/v1');
-  req.url = newPath;
-  next();
-});
 
 // API Documentation endpoint
 app.get('/api/docs', (req, res) => {
