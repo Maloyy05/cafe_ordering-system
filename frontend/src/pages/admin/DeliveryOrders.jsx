@@ -3,6 +3,7 @@ import API from '../../services/api';
 import toast from 'react-hot-toast';
 import { AuthContext } from '../../context/AuthContext';
 import formatCurrencyPHP from '../../utils/currency';
+import ConfirmModal from '../../components/common/ConfirmModal';
 
 const DeliveryOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -112,17 +113,42 @@ const DeliveryOrders = () => {
       // still refresh in background
       fetchOrders();
     } catch (err) {
-      // Check if payment verification is required
-      if (err?.response?.data?.requires_verification) {
+      console.error('handleStatusChange error', err);
+      const serverData = err?.response?.data;
+      const serverMsg = serverData && (serverData.message || JSON.stringify(serverData));
+      if (serverData?.requires_verification) {
         toast.error('Payment must be verified before preparing order');
+      } else if (err?.response === undefined) {
+        toast.error('Network error: could not reach backend. Check URL/CORS and server health');
       } else {
-        toast.error('Failed to update status');
+        toast.error(serverMsg || err.message || 'Failed to update status');
       }
       if (prevStatus !== null) {
         setOrders(prev => prev.map(o => o.id === orderId ? ({ ...o, status: prevStatus }) : o));
       }
     } finally {
       setUpdatingIds(prev => prev.filter(id => id !== orderId));
+    }
+  };
+
+  // Confirmation modal state for delivery orders
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmPayload, setConfirmPayload] = useState({ orderId: null, newStatus: null });
+  const [confirmLoading, setConfirmLoading] = useState(false);
+
+  const openConfirm = (orderId, newStatus) => {
+    setConfirmPayload({ orderId, newStatus });
+    setConfirmOpen(true);
+  };
+
+  const handleConfirm = async () => {
+    setConfirmLoading(true);
+    try {
+      await handleStatusChange(confirmPayload.orderId, confirmPayload.newStatus);
+    } finally {
+      setConfirmLoading(false);
+      setConfirmOpen(false);
+      setConfirmPayload({ orderId: null, newStatus: null });
     }
   };
 
@@ -141,8 +167,16 @@ const DeliveryOrders = () => {
 
   const statusOptionsFor = (order) => {
     const next = allowedTransitions[order.status] || [];
+    const orderType = order.order_type || 'Pickup';
+    // Filter out statuses that don't apply to the order type
+    const filtered = next.filter(s => {
+      if (s === 'Out for Delivery' || s === 'Delivered') return orderType === 'Delivery';
+      if (s === 'Ready for Pickup') return orderType === 'Pickup';
+      if (s === 'Served') return orderType === 'Dine-in';
+      return true;
+    });
     // include current status as first option so select shows it
-    const opts = [order.status, ...next.filter(s => s !== order.status)];
+    const opts = [order.status, ...filtered.filter(s => s !== order.status)];
     return opts;
   };
 
@@ -493,9 +527,9 @@ const DeliveryOrders = () => {
                       </>
                     )}
 
-                    <select className="control" disabled={updatingIds.includes(order.id) || (allowedTransitions[order.status]||[]).length===0} defaultValue="" onChange={(e) => { if (e.target.value) handleStatusChange(order.id, e.target.value); e.target.value=''; }}>
+                    <select className="control" disabled={updatingIds.includes(order.id) || (statusOptionsFor(order)||[]).length<=1} defaultValue="" onChange={(e) => { if (e.target.value) openConfirm(order.id, e.target.value); e.target.value=''; }}>
                       <option value="">Change status</option>
-                      {(allowedTransitions[order.status] || []).map(s => (
+                      {(statusOptionsFor(order) || []).slice(1).map(s => (
                         <option key={s} value={s}>{s}</option>
                       ))}
                     </select>
@@ -514,6 +548,15 @@ const DeliveryOrders = () => {
             </div>
           </div>
         )}
+        <ConfirmModal
+          open={confirmOpen}
+          title={`Change Order Status`}
+          message={`Change order status to "${confirmPayload.newStatus || ''}"?`}
+          confirmLabel={`Change status`}
+          loading={confirmLoading}
+          onConfirm={handleConfirm}
+          onCancel={() => setConfirmOpen(false)}
+        />
       </div>
     </>
   );

@@ -3,6 +3,7 @@ import API from '../../services/api';
 import toast from 'react-hot-toast';
 import { AuthContext } from '../../context/AuthContext';
 import formatCurrencyPHP from '../../utils/currency';
+import ConfirmModal from '../../components/common/ConfirmModal';
 
 const StaffDashboard = () => {
   const [orders, setOrders] = useState([]);
@@ -60,10 +61,15 @@ const StaffDashboard = () => {
     } catch (err) {
       console.error('updateStatus error', err);
       // revert optimistic update on failure
-      const msg = err?.response?.data?.message || err.message || 'Failed to update status';
+      const serverData = err?.response?.data;
+      const serverMsg = serverData && (serverData.message || JSON.stringify(serverData));
+      const msg = serverMsg || err?.message || 'Failed to update status';
       // Check if payment verification is required
-      if (err?.response?.data?.requires_verification) {
+      if (serverData?.requires_verification) {
         toast.error('Payment must be verified before preparing order');
+      } else if (err?.response === undefined) {
+        // Network error or CORS
+        toast.error('Network error: could not reach the backend. Check backend URL and CORS.');
       } else {
         toast.error(msg);
       }
@@ -72,6 +78,27 @@ const StaffDashboard = () => {
       }
     } finally {
       setUpdatingIds(prev => prev.filter(id => id !== orderId));
+    }
+  };
+
+  // Confirmation modal state
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmPayload, setConfirmPayload] = useState({ orderId: null, newStatus: null });
+  const [confirmLoading, setConfirmLoading] = useState(false);
+
+  const openConfirm = (orderId, newStatus) => {
+    setConfirmPayload({ orderId, newStatus });
+    setConfirmOpen(true);
+  };
+
+  const handleConfirm = async () => {
+    setConfirmLoading(true);
+    try {
+      await updateStatus(confirmPayload.orderId, confirmPayload.newStatus);
+    } finally {
+      setConfirmLoading(false);
+      setConfirmOpen(false);
+      setConfirmPayload({ orderId: null, newStatus: null });
     }
   };
 
@@ -661,41 +688,41 @@ const StaffDashboard = () => {
                       </>
                     )}
                     {order.status === 'Pending' && (
-                      <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Preparing')} className="btn-preparing">Start Preparing</button>
+                      <button disabled={updatingIds.includes(order.id)} onClick={() => openConfirm(order.id, 'Preparing')} className="btn-preparing">Start Preparing</button>
                     )}
 
                     {order.status === 'Preparing' && (
                       order.order_type === 'Delivery' ? (
-                        <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Out for Delivery')} className="btn-ready">Mark Out for Delivery</button>
+                        <button disabled={updatingIds.includes(order.id)} onClick={() => openConfirm(order.id, 'Out for Delivery')} className="btn-ready">Mark Out for Delivery</button>
                       ) : order.order_type === 'Dine-in' ? (
-                        <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Served')} className="btn-ready">Mark Served</button>
+                        <button disabled={updatingIds.includes(order.id)} onClick={() => openConfirm(order.id, 'Served')} className="btn-ready">Mark Served</button>
                       ) : (
-                        <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Ready for Pickup')} className="btn-ready">Mark Ready</button>
+                        <button disabled={updatingIds.includes(order.id)} onClick={() => openConfirm(order.id, 'Out for Delivery')} className="btn-ready">Mark Out for Delivery</button>
                       )
                     )}
 
                     {order.status === 'Ready for Pickup' && (
-                      <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Completed')} className="btn-complete">Complete Order</button>
+                      <button disabled={updatingIds.includes(order.id)} onClick={() => openConfirm(order.id, 'Completed')} className="btn-complete">Complete Order</button>
                     )}
 
                     {order.status === 'Served' && (
-                      <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Completed')} className="btn-complete">Complete Order</button>
+                      <button disabled={updatingIds.includes(order.id)} onClick={() => openConfirm(order.id, 'Completed')} className="btn-complete">Complete Order</button>
                     )}
 
                     {order.status === 'Out for Delivery' && (
-                      <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Delivered')} className="btn-ready">Mark Delivered</button>
+                      <button disabled={updatingIds.includes(order.id)} onClick={() => openConfirm(order.id, 'Delivered')} className="btn-ready">Mark Delivered</button>
                     )}
 
                     {order.status === 'Delivered' && (
                       user && user.role === 'admin' ? (
-                        <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Completed')} className="btn-complete">Complete Order</button>
+                        <button disabled={updatingIds.includes(order.id)} onClick={() => openConfirm(order.id, 'Completed')} className="btn-complete">Complete Order</button>
                       ) : (
                         <button onClick={() => toast('Waiting for admin to finalize delivery')} className="btn-complete">Awaiting Completion</button>
                       )
                     )}
 
                     {nextActionsFor(order).length > 0 && (
-                      <select className="order-actions" disabled={updatingIds.includes(order.id)} onChange={(e) => { if (e.target.value) updateStatus(order.id, e.target.value); e.target.value=''; }}>
+                        <select className="order-actions" disabled={updatingIds.includes(order.id)} onChange={(e) => { if (e.target.value) { openConfirm(order.id, e.target.value); } e.target.value=''; }}>
                         <option value="">More...</option>
                         {nextActionsFor(order).map(s => (
                           <option key={s} value={s}>{s}</option>
@@ -707,6 +734,15 @@ const StaffDashboard = () => {
               );
             })}
         </div>
+        <ConfirmModal
+          open={confirmOpen}
+          title={`Change Order Status`}
+          message={`Change order status to "${confirmPayload.newStatus || ''}"?`}
+          confirmLabel={`Change status`}
+          loading={confirmLoading}
+          onConfirm={handleConfirm}
+          onCancel={() => setConfirmOpen(false)}
+        />
       </div>
     </>
   );
