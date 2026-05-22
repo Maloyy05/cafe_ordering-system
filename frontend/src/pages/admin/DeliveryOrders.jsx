@@ -149,109 +149,360 @@ const DeliveryOrders = () => {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
 
-        .admin-section { min-height: calc(100vh - 72px); padding: 28px 36px; background: linear-gradient(180deg,#0a0806 0%, #0f0c09 100%); color: rgba(255,255,255,0.92); font-family: 'DM Sans', sans-serif; }
-        .admin-section h2 { font-family: 'Playfair Display', serif; color: #e8c97a; margin-bottom:12px }
+        .admin-section { min-height: calc(100vh - 72px); padding: 28px 36px; background: #F8F5F0; color: #2B2320; font-family: 'DM Sans', sans-serif; }
+        .admin-section h2 { font-family: 'Playfair Display', serif; color: #1F4D3A; margin-bottom:28px; font-size: 32px; }
 
-        .admin-filters { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; align-items: center; }
-        .admin-filters select, .admin-filters input { padding:10px 12px; border-radius:8px; background: rgba(255,255,255,0.02); border: 0.5px solid rgba(255,255,255,0.06); color: rgba(255,255,255,0.92); flex: 1; min-width: 200px; }
-        .btn-primary { padding:10px 16px; background: linear-gradient(135deg,#e8c97a,#f0d88e); border:none; border-radius:8px; color:#0f0c09; cursor:pointer; font-weight: 500; }
-        .btn-danger { padding:10px 16px; background: rgba(255,107,107,0.12); border: 0.5px solid rgba(255,107,107,0.18); color:#ff6b6b; border-radius:8px; cursor:pointer; }
+        /* Modern Filter Bar */
+        .admin-filters { 
+          background: white; 
+          padding: 20px 24px; 
+          border-radius: 16px; 
+          margin-bottom: 28px; 
+          display: flex; 
+          align-items: center; 
+          gap: 16px; 
+          flex-wrap: wrap;
+          box-shadow: 0 8px 24px rgba(31, 77, 58, 0.08);
+          border: 1px solid rgba(31, 77, 58, 0.05);
+        }
 
-        .orders-list { display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:16px; }
-        .order-card { background: rgba(255,255,255,0.02); border: 0.5px solid rgba(232,201,122,0.06); padding:16px; border-radius:10px; display: flex; flex-direction: column; }
-        .order-card h4 { margin:0 0 8px; color: rgba(255,255,255,0.94) }
-        .order-card small { color: rgba(255,255,255,0.28); display: block; margin-top: 4px; }
+        .filter-group {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          flex-wrap: wrap;
+          flex: 1;
+          min-width: 240px;
+        }
 
-        .order-actions { display:flex; gap:8px; margin-top:auto; padding-top: 12px; flex-wrap: wrap; }
-        .order-actions select { padding:8px 10px; border-radius:8px; flex: 1; }
-        .order-actions button { padding: 8px 12px; border-radius: 8px; cursor: pointer; border: none; font-size: 13px; font-weight: 500; flex: 1; }
-        .order-actions .btn { background: rgba(232,201,122,0.1); color: #e8c97a; }
+        .filter-label {
+          font-size: 13px;
+          font-weight: 600;
+          color: #6B6B6B;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          white-space: nowrap;
+        }
 
-        .modal-overlay { position:fixed; inset:0; background: rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center }
-        .modal-proof { background:#13100d; padding:16px; border-radius:10px; max-width:90%; max-height:90%; border:0.5px solid rgba(232,201,122,0.08); }
+        .admin-filters select,
+        .admin-filters input {
+          padding: 12px 16px;
+          border-radius: 12px;
+          background: #FAFAFA;
+          border: 1.5px solid #EBE0D1;
+          color: #2B2320;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 14px;
+          font-weight: 500;
+          transition: all 0.2s ease;
+          flex: 1;
+          min-width: 160px;
+          box-sizing: border-box;
+        }
+
+        .admin-filters select:hover,
+        .admin-filters input:hover {
+          border-color: #1F4D3A;
+          background: #FFFFFF;
+          box-shadow: 0 4px 12px rgba(31, 77, 58, 0.06);
+        }
+
+        .admin-filters select:focus,
+        .admin-filters input:focus {
+          outline: none;
+          border-color: #1F4D3A;
+          background: #FFFFFF;
+          box-shadow: 0 6px 20px rgba(31, 77, 58, 0.12);
+        }
+
+        .admin-filters input::placeholder {
+          color: #B0A89A;
+          font-weight: 400;
+        }
+
+        .filter-actions { 
+          display: flex; 
+          gap: 12px;
+          align-items: center;
+          margin-left: auto;
+          flex-wrap: wrap;
+        }
+
+        /* Buttons */
+        .btn-primary { 
+          padding: 12px 20px; 
+          background: linear-gradient(135deg, #1F4D3A 0%, #2D5016 100%); 
+          border: none; 
+          border-radius: 12px; 
+          color: white; 
+          cursor: pointer; 
+          font-weight: 600;
+          font-size: 14px;
+          box-shadow: 0 8px 20px rgba(31, 77, 58, 0.15);
+          transition: all 0.3s ease;
+          white-space: nowrap;
+        }
+
+        .btn-primary:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 12px 28px rgba(31, 77, 58, 0.2);
+        }
+
+        .btn-primary:active {
+          transform: translateY(0);
+          box-shadow: 0 6px 12px rgba(31, 77, 58, 0.15);
+        }
+
+        .btn-ghost { 
+          padding: 10px 14px; 
+          background: #FAFAFA; 
+          border: 1.5px solid #EBE0D1; 
+          border-radius: 10px; 
+          color: #2B2320; 
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 13px;
+          transition: all 0.2s ease;
+        }
+
+        .btn-ghost:hover {
+          background: white;
+          border-color: #1F4D3A;
+          color: #1F4D3A;
+          box-shadow: 0 4px 12px rgba(31, 77, 58, 0.08);
+        }
+
+        .btn-danger { 
+          padding: 10px 14px; 
+          background: #FFF5F5; 
+          border: 1.5px solid #F2B5B5; 
+          border-radius: 10px; 
+          color: #C0392B; 
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 13px;
+          transition: all 0.2s ease;
+        }
+
+        .btn-danger:hover {
+          background: #FFE8E8;
+          border-color: #E07070;
+          box-shadow: 0 4px 12px rgba(192, 57, 43, 0.08);
+        }
+
+        /* Orders grid and card */
+        .orders-list { display:grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap:18px; }
+        .order-card { background: white; border:1px solid #EBE0D1; padding:18px; border-radius:14px; display:flex; flex-direction:column; gap:12px; box-shadow: 0 10px 30px rgba(31,77,58,0.04); }
+
+        .order-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+        .order-meta { display:flex; flex-direction:column; gap:6px; }
+        .order-number { font-family: 'Playfair Display', serif; color: #1F4D3A; font-size:18px; font-weight:700; }
+        .order-time { font-size:12px; color:#6B6B6B; }
+
+        .badge { padding:6px 10px; border-radius:999px; font-weight:700; font-size:12px; display:inline-block; text-transform:capitalize; }
+        .badge.pending { background:#FFF7E6; color:#C47A00; border:1px solid #F4E1C1; }
+        .badge.preparing { background:#E9F7EF; color:#1F7A3A; border:1px solid #CFEFD9; }
+        .badge.out { background:#E8F8FF; color:#0B6A8B; border:1px solid #CDEDF6; }
+        .badge.delivered { background:#F0FFF4; color:#086A2E; border:1px solid #DFF1DF; }
+        .badge.cancelled { background:#FFF5F5; color:#B02A2A; border:1px solid #F5DADA; }
+
+        .order-body { display:flex; gap:12px; flex-direction:column; }
+        .items-list { display:flex; flex-direction:column; gap:6px; font-size:14px; color:#3C3C3C; }
+        .items-list .item { display:flex; justify-content:space-between; gap:12px; }
+
+        .order-footer { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:8px; }
+        .order-info { display:flex; flex-direction:column; gap:6px; }
+        .order-total { font-weight:700; color:#1F4D3A; }
+
+        .order-actions { display:flex; gap:8px; align-items:center; margin-top:8px; flex-wrap:wrap; }
+        .order-actions select { padding:10px 12px; border-radius:10px; border:1px solid #EBE0D1; background:white; color:#2B2320; }
+        .order-actions button { padding:10px 12px; border-radius:10px; cursor:pointer; border:none; font-size:13px; font-weight:600; }
+
+        .order-actions .icon { margin-right:6px; }
+
+        .modal-overlay { position:fixed; inset:0; background: rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center }
+        .modal-proof { background:white; padding:16px; border-radius:12px; max-width:90%; max-height:90%; border:1px solid #EBE0D1; }
         .modal-proof img{ max-width:100%; max-height:80vh; display:block }
 
-        @media (max-width:640px) { 
-          .admin-section{padding:20px 16px;} 
-          .order-card{padding:14px;} 
-          .orders-list { grid-template-columns: 1fr; }
-          .admin-filters select, .admin-filters input { min-width: 100%; box-sizing: border-box; }
-          .admin-filters button { width: 100%; }
+        @media (max-width: 1200px) { 
+          .admin-filters { 
+            padding: 18px 20px;
+          }
+          .filter-actions { 
+            margin-left: 0;
+            width: 100%;
+            justify-content: flex-start;
+          }
+          .orders-list { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+        }
+
+        @media (max-width: 900px) { 
+          .admin-filters { 
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 14px;
+          }
+          .filter-group {
+            width: 100%;
+            min-width: unset;
+          }
+          .admin-filters select,
+          .admin-filters input {
+            width: 100%;
+            min-width: unset;
+          }
+          .filter-actions { 
+            width: 100%;
+            margin-left: 0;
+          }
+          .btn-primary {
+            width: 100%;
+            justify-content: center;
+          }
+          .orders-list { grid-template-columns: 1fr; } 
+        }
+
+        @media (max-width: 640px) { 
+          .admin-section { 
+            padding: 18px 12px;
+          }
+          .admin-section h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+          }
+          .admin-filters { 
+            padding: 16px 14px;
+            border-radius: 14px;
+          }
+          .filter-label {
+            font-size: 12px;
+          }
+          .admin-filters select,
+          .admin-filters input {
+            padding: 10px 14px;
+            font-size: 13px;
+          }
+          .order-card { 
+            padding: 14px;
+          }
         }
       `}</style>
 
       <div className="admin-section">
-        <h2>Delivery Orders & Payments</h2>
+        <h2>🚚 Delivery Orders & Payments</h2>
 
         <div className="admin-filters">
-          <select value={filters.payment_status} onChange={(e) => setFilters(f => ({...f, payment_status: e.target.value}))}>
-            <option value="all">All Payment Statuses</option>
-            <option value="Pending Verification">Pending Verification</option>
-            <option value="Paid">Paid</option>
-            <option value="Rejected">Rejected</option>
-          </select>
-          <select value={filters.status} onChange={(e) => setFilters(f => ({...f, status: e.target.value}))}>
-            <option value="all">All Order Statuses</option>
-            <option value="Pending">Pending</option>
-            <option value="Preparing">Preparing</option>
-            <option value="Ready for Pickup">Ready for Pickup</option>
-            <option value="Served">Served</option>
-            <option value="Out for Delivery">Out for Delivery</option>
-            <option value="Delivered">Delivered</option>
-            <option value="Completed">Completed</option>
-            <option value="Cancelled">Cancelled</option>
-          </select>
-          <input placeholder="Search order# or customer" value={filters.q} onChange={(e) => setFilters(f => ({...f, q: e.target.value}))} />
-          <button onClick={fetchOrders} className="btn-primary">Refresh</button>
+          <div className="filter-group">
+            <span className="filter-label">Payment Status</span>
+            <select value={filters.payment_status} onChange={(e) => setFilters(f => ({...f, payment_status: e.target.value}))}>
+              <option value="all">All Payment Statuses</option>
+              <option value="Pending Verification">Pending Verification</option>
+              <option value="Paid">Paid</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </div>
+
+          <div className="filter-group">
+            <span className="filter-label">Order Status</span>
+            <select value={filters.status} onChange={(e) => setFilters(f => ({...f, status: e.target.value}))}>
+              <option value="all">All Order Statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="Preparing">Preparing</option>
+              <option value="Ready for Pickup">Ready for Pickup</option>
+              <option value="Served">Served</option>
+              <option value="Out for Delivery">Out for Delivery</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Completed">Completed</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
+
+          <div className="filter-group" style={{ flex: 1.5 }}>
+            <span className="filter-label">Search</span>
+            <input placeholder="Order # or customer name..." value={filters.q} onChange={(e) => setFilters(f => ({...f, q: e.target.value}))} />
+          </div>
+
+          <div className="filter-actions">
+            <button onClick={fetchOrders} className="btn-primary">🔄 Refresh</button>
+          </div>
         </div>
 
         {loading ? <p>Loading...</p> : (
           <div className="orders-list">
-            {orders.map(order => (
-              <div key={order.id} className="order-card">
-                <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                  <div>
-                    <h4>{order.order_number} <small>{new Date(order.created_at).toLocaleString()}</small></h4>
-                    <p style={{margin:'4px 0'}}><strong>Customer:</strong> {order.customer_name} <br/> <strong>Contact:</strong> {order.contact_number}</p>
-                    <p style={{margin:'4px 0'}}><strong>Address:</strong> {order.address} <br /><strong>Landmark:</strong> {order.landmark}</p>
-                  </div>
-                  <div>
-                    <p style={{margin:'4px 0'}}><strong>Total:</strong> {formatCurrencyPHP(order.total_amount)}</p>
-                    <p style={{margin:'4px 0'}}><strong>Payment:</strong> {order.payment_method} / {order.payment_status || 'N/A'}</p>
-                    <div style={{display:'flex',alignItems:'center',gap:8,margin:'6px 0'}}>
-                      <span className="order-status" style={{background: 'rgba(232,201,122,0.1)', color: '#e8c97a', padding: '4px 8px', borderRadius: 6, fontWeight: 600}}>{order.status}</span>
+            {orders.map(order => {
+              const badgeClass = (status => {
+                if (!status) return 'pending';
+                const s = status.toLowerCase();
+                if (s.includes('pending')) return 'pending';
+                if (s.includes('prepar')) return 'preparing';
+                if (s.includes('out for') || s.includes('delivery')) return 'out';
+                if (s.includes('deliver') || s.includes('delivered')) return 'delivered';
+                if (s.includes('cancel')) return 'cancelled';
+                return 'preparing';
+              })(order.status);
+
+              return (
+                <div key={order.id} className="order-card">
+                  <div className="order-head">
+                    <div className="order-meta">
+                      <div className="order-number">{order.order_number}</div>
+                      <div className="order-time">{new Date(order.created_at).toLocaleString()}</div>
                     </div>
-                    {order.status === 'Cancelled' && (
-                      <p style={{margin:'4px 0', color: '#ff6b6b'}}><strong>Cancellation:</strong> {order.cancellation_reason || '—'}{order.cancellation_time && (
-                        <span> — {new Date(order.cancellation_time).toLocaleString()}</span>
-                      )}</p>
+                    <div>
+                      <span className={`badge ${badgeClass}`}>{order.status}</span>
+                    </div>
+                  </div>
+
+                  <div className="order-body">
+                    <div className="items-list">
+                      {(order.items && order.items.length > 0) ? order.items.map((it, idx) => (
+                        <div className="item" key={idx}><div>{it.name || it.product_name || 'Item' }{it.quantity ? ` x${it.quantity}` : ''}</div><div style={{color:'#6B6B6B'}}>{formatCurrencyPHP((it.price||0) * (it.quantity||1))}</div></div>
+                      )) : (
+                        <div className="item">No item details available</div>
+                      )}
+                    </div>
+
+                    <div className="order-info">
+                      <div><strong>Customer:</strong> {order.customer_name} — <span style={{color:'#6B6B6B'}}>{order.contact_number}</span></div>
+                      <div><strong>Address:</strong> {order.address} {order.landmark ? `· ${order.landmark}` : ''}</div>
+                      {order.status === 'Cancelled' && (
+                        <div style={{color:'#B02A2A'}}><strong>Cancellation:</strong> {order.cancellation_reason || '—'}</div>
+                      )}
+                      <div style={{fontSize:12, color:'#6B6B6B'}}>Last update: {new Date(order.updated_at || order.delivery_started_at || order.delivered_at || order.created_at).toLocaleString()}</div>
+                    </div>
+                  </div>
+
+                  <div className="order-footer">
+                    <div className="order-total">{formatCurrencyPHP(order.total_amount)}</div>
+                    <div style={{display:'flex', gap:8}}>
+                      <div style={{fontSize:13, color:'#6B6B6B'}}>{order.payment_method} · {order.payment_status || 'N/A'}</div>
+                    </div>
+                  </div>
+
+                  <div className="order-actions">
+                    {order.payment_proof && (
+                      <button className="btn-ghost" onClick={() => setSelectedProof(order.payment_proof)} title="View payment proof">🔍 View</button>
                     )}
-                    <small style={{color:'rgba(255,255,255,0.36)'}}>Last: {new Date(order.updated_at || order.delivery_started_at || order.delivered_at || order.created_at).toLocaleString()}</small>
+
+                    {order.payment_status === 'Pending Verification' && (
+                      <>
+                        <button className="btn-primary" onClick={() => handleVerify(order.id)} title="Mark payment as Paid">✅ Verify</button>
+                        <button className="btn-danger" onClick={() => handleReject(order.id)} title="Reject payment">✖ Reject</button>
+                      </>
+                    )}
+
+                    <select className="control" disabled={updatingIds.includes(order.id) || (allowedTransitions[order.status]||[]).length===0} defaultValue="" onChange={(e) => { if (e.target.value) handleStatusChange(order.id, e.target.value); e.target.value=''; }}>
+                      <option value="">Change status</option>
+                      {(allowedTransitions[order.status] || []).map(s => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
-
-                <div className="order-actions">
-                  {order.payment_proof && (
-                    <button className="btn" onClick={() => setSelectedProof(order.payment_proof)}>View Proof</button>
-                  )}
-                  {order.payment_status === 'Pending Verification' && (
-                    <>
-                      <button className="btn-primary" onClick={() => handleVerify(order.id)}>Verify</button>
-                      <button className="btn-danger" onClick={() => handleReject(order.id)}>Reject</button>
-                    </>
-                  )}
-
-                  <select disabled={updatingIds.includes(order.id) || (allowedTransitions[order.status]||[]).length===0} value="" onChange={(e) => handleStatusChange(order.id, e.target.value)}>
-                    <option value="">Status: {order.status}</option>
-                    {(allowedTransitions[order.status] || []).map(s => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 

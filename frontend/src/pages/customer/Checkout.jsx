@@ -94,41 +94,201 @@ const Checkout = () => {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
 
         .checkout-container {
           min-height: calc(100vh - 72px);
-          padding: 28px 36px;
-          background: linear-gradient(180deg,#0a0806 0%, #0f0c09 100%);
-          color: rgba(255,255,255,0.92);
+          padding: 48px 36px;
+          background: linear-gradient(135deg, #FAF7F2 0%, #F5EFE7 100%);
+          color: #2B2320;
           font-family: 'DM Sans', sans-serif;
         }
+
         .checkout-content {
-          max-width: 800px;
+          max-width: 720px;
           margin: 0 auto;
         }
 
-        .checkout-content h1 { font-family: 'Playfair Display', serif; color: #e8c97a; margin-bottom: 12px; }
+        .checkout-content h1 {
+          font-family: 'Playfair Display', serif;
+          color: #2D5016;
+          margin-bottom: 12px;
+          font-size: 36px;
+          font-weight: 700;
+        }
 
-        .checkout-form { width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.02); padding: 24px; border-radius: 12px; border: 0.5px solid rgba(232,201,122,0.06); }
+        .checkout-subtitle {
+          color: #5C524A;
+          margin-bottom: 28px;
+          font-size: 14px;
+        }
 
-        .form-group { margin-bottom: 14px; display:flex; flex-direction:column; gap:8px; }
-        .form-group label { font-size: 12px; color: rgba(232,201,122,0.7); text-transform: uppercase; letter-spacing: 0.12em; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 8px; border: 0.5px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.92); }
+        .checkout-form {
+          width: 100%;
+          box-sizing: border-box;
+          background: white;
+          padding: 32px;
+          border-radius: 18px;
+          border: 1px solid #EBE0D1;
+          box-shadow: 0 8px 32px rgba(45, 80, 22, 0.08);
+        }
 
-        .order-summary { margin: 16px 0; font-weight: 700; color: #e8c97a; }
+        .form-group {
+          margin-bottom: 20px;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
 
-        .btn-primary { width: 100%; padding: 14px 18px; background: linear-gradient(135deg,#e8c97a,#f0d88e); color:#0f0c09; border-radius:10px; border:none; cursor:pointer; font-weight:700; text-transform: uppercase; letter-spacing: 0.05em;}
+        .form-group label {
+          font-size: 12px;
+          color: #2D5016;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+          font-weight: 600;
+        }
 
-        @media (max-width:640px){ 
-          .checkout-container{padding:20px 16px;} 
-          .checkout-form{padding:16px;} 
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+          width: 100%;
+          box-sizing: border-box;
+          padding: 12px 14px;
+          border-radius: 10px;
+          border: 1.5px solid #EBE0D1;
+          background: rgba(212, 132, 78, 0.02);
+          color: #2B2320;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 14px;
+          transition: all 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+          outline: none;
+          border-color: #D4844E;
+          background: rgba(212, 132, 78, 0.06);
+          box-shadow: 0 0 0 3px rgba(212, 132, 78, 0.08);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+          color: rgba(92, 82, 74, 0.5);
+        }
+
+        .form-divider {
+          height: 1px;
+          background: #EBE0D1;
+          margin: 28px 0;
+        }
+
+        .order-summary {
+          background: linear-gradient(135deg, #FAF7F2 0%, #F5EFE7 100%);
+          padding: 18px;
+          border-radius: 12px;
+          border: 1px solid #EBE0D1;
+          margin-bottom: 24px;
+        }
+
+        .order-summary h3 {
+          margin: 0 0 8px;
+          font-family: 'Playfair Display', serif;
+          color: #2D5016;
+          font-size: 20px;
+          font-weight: 700;
+        }
+
+        .order-summary small {
+          display: block;
+          color: #5C524A;
+          margin-top: 6px;
+          font-size: 12px;
+        }
+
+        .btn-primary {
+          width: 100%;
+          padding: 16px 24px;
+          background: linear-gradient(135deg, #2D5016, #4A7C2E);
+          color: white;
+          border-radius: 12px;
+          border: none;
+          cursor: pointer;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          font-size: 13px;
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+          box-shadow: 0 8px 24px rgba(45, 80, 22, 0.2);
+        }
+
+        .btn-primary:hover {
+          background: linear-gradient(135deg, #1F3710, #2D5016);
+          transform: translateY(-2px);
+          box-shadow: 0 12px 32px rgba(45, 80, 22, 0.3);
+        }
+
+        .btn-primary:active {
+          transform: translateY(0);
+        }
+
+        .conditional-section {
+          background: rgba(212, 132, 78, 0.04);
+          padding: 16px;
+          border-radius: 12px;
+          border-left: 3px solid #D4844E;
+          margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+          .checkout-container {
+            padding: 32px 24px;
+          }
+
+          .checkout-content h1 {
+            font-size: 28px;
+          }
+
+          .checkout-form {
+            padding: 24px;
+          }
+
+          .form-group input,
+          .form-group select,
+          .form-group textarea {
+            font-size: 16px;
+            padding: 14px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .checkout-container {
+            padding: 24px 16px;
+          }
+
+          .checkout-content h1 {
+            font-size: 24px;
+          }
+
+          .checkout-form {
+            padding: 18px;
+          }
+
+          .form-group {
+            margin-bottom: 16px;
+          }
+
+          .btn-primary {
+            padding: 14px 20px;
+            font-size: 12px;
+          }
         }
       `}</style>
 
       <div className="checkout-container">
         <div className="checkout-content">
           <h1>Checkout</h1>
+          <p className="checkout-subtitle">Complete your order by providing your details below</p>
         <form onSubmit={handleCheckout} className="checkout-form">
           <div className="form-group">
             <label>Customer Name</label>

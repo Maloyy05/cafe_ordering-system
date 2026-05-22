@@ -1,0 +1,9 @@
+{
+  "products": [
+    { "name": "Cappuccino", "file": "/images/products/Cappucino (3).jpg" },
+    { "name": "Espresso", "file": "/images/products/Espresso (3).jpg" },
+    { "name": "Green Herbal tea", "file": "/images/products/Green herbal tea.jpg" },
+    { "name": "Americano", "file": "/images/products/Americano.jpg" },
+    { "name": "Mocha", "file": "/images/products/Mocha.jpg" }
+  ]
+}

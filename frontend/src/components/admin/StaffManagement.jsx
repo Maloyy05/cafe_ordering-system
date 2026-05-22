@@ -13,7 +13,8 @@ const StaffManagement = () => {
       const res = await API.get('/staff');
       setStaff(res.data || []);
     } catch (err) {
-      toast.error('Failed to load staff list');
+      const msg = err?.response?.data?.message || err?.message || 'Failed to load staff list';
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -34,7 +35,8 @@ const StaffManagement = () => {
       setForm({ name: '', username: '', password: '' });
       toast.success('Staff created');
     } catch (err) {
-      toast.error('Failed to create staff');
+      const msg = err?.response?.data?.message || err?.message || 'Failed to create staff';
+      toast.error(msg);
     }
   };
 
@@ -45,47 +47,229 @@ const StaffManagement = () => {
       setStaff((s) => s.filter((p) => p.id !== id));
       toast.success('Staff deleted');
     } catch (err) {
-      toast.error('Failed to delete staff');
+      const msg = err?.response?.data?.message || err?.message || 'Failed to delete staff';
+      toast.error(msg);
     }
   };
 
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
 
-        .admin-section { min-height: calc(100vh - 72px); padding:28px 36px; background: linear-gradient(180deg,#0a0806 0%, #0f0c09 100%); color: rgba(255,255,255,0.92); font-family: 'DM Sans', sans-serif }
-        .admin-section h2 { font-family:'Playfair Display', serif; color:#e8c97a; margin-bottom:12px }
+        .admin-section { 
+          margin-bottom: 48px;
+          position: relative;
+          z-index: 1;
+        }
 
-        .staff-grid { display:grid; grid-template-columns: 320px 1fr; gap:20px }
-        .staff-form { background: rgba(255,255,255,0.02); padding:18px; border-radius:12px; border:0.5px solid rgba(232,201,122,0.06) }
-        .staff-form h3 { margin-top:0; color:#e8c97a; font-family: 'Playfair Display', serif }
-        .staff-form .form-group { margin-bottom:14px; display:flex; flex-direction:column }
-        .staff-form label { font-size:12px; color: rgba(232,201,122,0.7); text-transform:uppercase; letter-spacing:0.12em }
-        .staff-form input { padding:12px 14px; border-radius:8px; background: rgba(255,255,255,0.04); border:0.5px solid rgba(255,255,255,0.06); color: rgba(255,255,255,0.92); width:100%; box-sizing:border-box }
-        .staff-form input::placeholder { color: rgba(255,255,255,0.18) }
+        .admin-section h2 { 
+          font-family: 'Playfair Display', serif;
+          font-size: 28px;
+          font-weight: 700;
+          color: #1F4D3A;
+          letter-spacing: 0.02em;
+          margin: 0 0 12px;
+          transition: color 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
 
-        /* Override browser autofill (Chrome/Safari) to match dark theme */
+        .admin-section p {
+          font-size: 14px;
+          color: #5C524A;
+          letter-spacing: 0.05em;
+          margin: 0 0 28px;
+          opacity: 0.8;
+        }
+
+        .staff-grid { 
+          display: grid;
+          grid-template-columns: 320px 1fr;
+          gap: 24px;
+        }
+
+        .staff-form { 
+          background: white;
+          padding: 28px;
+          border-radius: 16px;
+          border: 1px solid #EBE0D1;
+          box-shadow: 0 8px 28px rgba(31, 77, 58, 0.06);
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .staff-form:hover {
+          box-shadow: 0 12px 40px rgba(31, 77, 58, 0.08);
+          border-color: rgba(31, 77, 58, 0.15);
+        }
+
+        .staff-form h3 { 
+          margin: 0 0 20px 0;
+          color: #1F4D3A;
+          font-family: 'Playfair Display', serif;
+          font-size: 18px;
+          font-weight: 700;
+        }
+
+        .staff-form .form-group { 
+          margin-bottom: 16px;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+
+        .staff-form label { 
+          font-size: 11px;
+          color: #5C524A;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+          font-weight: 600;
+        }
+
+        .staff-form input { 
+          padding: 12px 14px;
+          border-radius: 10px;
+          background: white;
+          border: 1px solid #EBE0D1;
+          color: #2B2320;
+          width: 100%;
+          box-sizing: border-box;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 14px;
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .staff-form input::placeholder { 
+          color: #9E9280;
+        }
+
+        .staff-form input:focus { 
+          border-color: #1F4D3A;
+          box-shadow: 0 0 0 3px rgba(31, 77, 58, 0.1);
+          background: #FFFBF8;
+          outline: none;
+        }
+
+        /* Override browser autofill (Chrome/Safari) */
         input:-webkit-autofill,
         input:-webkit-autofill:focus,
         input:-webkit-autofill:hover,
         textarea:-webkit-autofill,
         textarea:-webkit-autofill:focus {
-          -webkit-text-fill-color: rgba(255,255,255,0.92) !important;
-          -webkit-box-shadow: 0 0 0px 1000px rgba(255,255,255,0.04) inset !important;
-          box-shadow: 0 0 0px 1000px rgba(255,255,255,0.04) inset !important;
+          -webkit-text-fill-color: #2B2320 !important;
+          -webkit-box-shadow: 0 0 0px 1000px white inset !important;
+          box-shadow: 0 0 0px 1000px white inset !important;
         }
 
-        .staff-form input:focus { border-color: rgba(232,201,122,0.45); background: rgba(232,201,122,0.03) }
-        .btn-primary { padding:10px 14px; background: linear-gradient(135deg,#e8c97a,#f0d88e); color:#0f0c09; border:none; border-radius:8px; cursor:pointer; margin-top:6px }
+        .btn-primary { 
+          padding: 12px 24px;
+          background: linear-gradient(135deg, #1F4D3A, #2D5016);
+          color: white;
+          border: none;
+          border-radius: 10px;
+          cursor: pointer;
+          margin-top: 8px;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 12px;
+          font-weight: 600;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+          box-shadow: 0 8px 20px rgba(31, 77, 58, 0.15);
+          width: 100%;
+        }
 
-        .staff-list { background: rgba(255,255,255,0.02); padding:14px; border-radius:10px; border:0.5px solid rgba(232,201,122,0.06); overflow-x: auto; }
-        .admin-table { width:100%; min-width: 500px; border-collapse:collapse; }
-        .admin-table th, .admin-table td { padding:10px 12px; text-align:left; border-bottom: 0.5px solid rgba(255,255,255,0.03) }
-        .btn-danger { padding:8px 12px; background: rgba(255,107,107,0.12); color:#ff6b6b; border:0.5px solid rgba(255,107,107,0.18); border-radius:8px; cursor:pointer; font-weight: 500; }
+        .btn-primary:hover {
+          background: linear-gradient(135deg, #162d25, #1F4D3A);
+          transform: translateY(-2px);
+          box-shadow: 0 12px 32px rgba(31, 77, 58, 0.3);
+        }
 
-        @media (max-width:900px){ .staff-grid{grid-template-columns:1fr; gap: 24px;} }
-        @media (max-width:640px){ .admin-section{padding: 24px 16px;} .staff-form{padding: 20px;} }
+        .btn-primary:active {
+          transform: translateY(0);
+        }
+
+        .staff-list { 
+          background: white;
+          padding: 28px;
+          border-radius: 16px;
+          border: 1px solid #EBE0D1;
+          overflow-x: auto;
+          box-shadow: 0 8px 28px rgba(31, 77, 58, 0.06);
+        }
+
+        .staff-list h3 {
+          margin: 0 0 20px 0;
+          color: #1F4D3A;
+          font-family: 'Playfair Display', serif;
+          font-size: 18px;
+          font-weight: 700;
+        }
+
+        .admin-table { 
+          width: 100%;
+          min-width: 500px;
+          border-collapse: collapse;
+        }
+
+        .admin-table th { 
+          padding: 14px;
+          text-align: left;
+          border-bottom: 1px solid #EBE0D1;
+          font-size: 11px;
+          font-weight: 600;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: #1F4D3A;
+          background: linear-gradient(135deg, rgba(31, 77, 58, 0.04) 0%, rgba(31, 77, 58, 0.02) 100%);
+        }
+
+        .admin-table td { 
+          padding: 14px;
+          text-align: left;
+          border-bottom: 1px solid #EBE0D1;
+          color: #2B2320;
+          font-size: 14px;
+        }
+
+        .admin-table tbody tr:hover {
+          background: linear-gradient(135deg, rgba(31, 77, 58, 0.02) 0%, transparent 100%);
+        }
+
+        .btn-danger { 
+          padding: 8px 14px;
+          background: white;
+          color: #C0392B;
+          border: 1px solid #C0392B;
+          border-radius: 8px;
+          cursor: pointer;
+          font-weight: 600;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 11px;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .btn-danger:hover {
+          background: #C0392B;
+          color: white;
+          box-shadow: 0 6px 16px rgba(192, 57, 43, 0.2);
+        }
+
+        @media (max-width: 900px) { 
+          .staff-grid { 
+            grid-template-columns: 1fr;
+            gap: 24px;
+          }
+        }
+
+        @media (max-width: 640px) { 
+          .staff-form { 
+            padding: 20px;
+          }
+          .staff-list {
+            padding: 20px;
+          }
+        }
       `}</style>
 
       <section className="admin-section">

@@ -6,6 +6,8 @@ const path = require('path');
 const authRoutes = require('./routes/authRoutes');
 const debugRoutes = require('./routes/debugRoutes');
 const productRoutes = require('./routes/productRoutes');
+const teaRoutes = require('./routes/teaRoutes');
+const cookieRoutes = require('./routes/cookieRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const staffRoutes = require('./routes/staffRoutes');
 const reportRoutes = require('./routes/reportRoutes');
@@ -66,6 +68,8 @@ app.use('/api', (req, res, next) => {
 // API Version 1 Routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/products', productRoutes);
+app.use('/api/v1/teas', teaRoutes);
+app.use('/api/v1/cookies', cookieRoutes);
 app.use('/api/v1/orders', orderRoutes);
 app.use('/api/v1/staff', staffRoutes);
 app.use('/api/v1/reports', reportRoutes);

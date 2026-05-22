@@ -42,8 +42,16 @@ const AdminDashboard = () => {
 
   const handleProductSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate that a category is selected
+    if (!productForm.category_name) {
+      toast.error('Please select a category before saving the product');
+      return;
+    }
+
     try {
       let imageUrl = productForm.image_url;
+
       // If a new image file is provided, upload it first
       if (productForm.imageFile) {
         const formData = new FormData();
@@ -53,38 +61,41 @@ const AdminDashboard = () => {
         imageUrl = uploadRes.data.image_url || uploadRes.data.publicUrl || uploadRes.data.image_url;
       }
 
+      // Build payload and only include numeric fields when valid
+      const payload = {
+        name: productForm.name,
+        description: productForm.description || '',
+        image_url: imageUrl,
+        status: productForm.status,
+        category_name: productForm.category_name,
+      };
+
+      const parsedPrice = Number(productForm.price);
+      if (!Number.isNaN(parsedPrice) && productForm.price !== '') payload.price = parsedPrice;
+
+      const parsedStock = Number(productForm.stock);
+      if (!Number.isNaN(parsedStock) && productForm.stock !== '') payload.stock = parsedStock;
+
       if (editing) {
-        const res = await API.put(`/products/${productForm.id}`, {
-          name: productForm.name,
-          description: productForm.description,
-          price: parseFloat(productForm.price),
-          stock: parseInt(productForm.stock, 10),
-          image_url: imageUrl,
-          status: productForm.status
-        });
+        const res = await API.put(`/products/${productForm.id}`, payload);
         setProducts((p) => p.map((it) => (it.id === res.data.id ? res.data : it)));
         toast.success('Product updated');
       } else {
-        const res = await API.post('/products', {
-          name: productForm.name,
-          description: productForm.description,
-          price: parseFloat(productForm.price),
-          stock: parseInt(productForm.stock, 10),
-          image_url: imageUrl,
-          status: productForm.status
-        });
+        const res = await API.post('/products', payload);
         setProducts((p) => [res.data, ...p]);
         toast.success('Product created');
       }
-      setProductForm({ name: '', description: '', price: '', stock: '', image_url: '', status: 'available', id: null });
+
+      setProductForm({ name: '', description: '', price: '', stock: '', image_url: '', status: 'available', category_name: '', id: null });
       setEditing(false);
     } catch (err) {
-      toast.error('Failed to save product');
+      console.error('Save product failed', err.response?.data || err.message || err);
+      toast.error(err.response?.data?.message || 'Failed to save product');
     }
   };
 
   const handleEditProduct = (product) => {
-    setProductForm({ name: product.name, description: product.description || '', price: product.price || '', stock: product.stock || 0, image_url: product.image_url || '', status: product.status || 'available', id: product.id });
+    setProductForm({ name: product.name, description: product.description || '', price: product.price || '', stock: product.stock || 0, image_url: product.image_url || '', status: product.status || 'available', category_name: product.categories?.name || '', id: product.id });
     setEditing(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -103,38 +114,69 @@ const AdminDashboard = () => {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
 
         body {
-          background: #0a0806;
+          background: #F8F5F0;
           font-family: 'DM Sans', sans-serif;
         }
 
         .admin-dashboard {
           min-height: 100vh;
-          background: #0a0806;
-          padding: 48px 24px;
+          background: linear-gradient(135deg, #F8F5F0 0%, #F5EFE7 100%);
+          padding: 48px 36px;
           font-family: 'DM Sans', sans-serif;
+          color: #2B2320;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .admin-dashboard::before {
+          content: '';
+          position: absolute;
+          top: -40%;
+          right: -20%;
+          width: 600px;
+          height: 600px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(31, 77, 58, 0.04) 0%, transparent 70%);
+          pointer-events: none;
+        }
+
+        .admin-dashboard::after {
+          content: '';
+          position: absolute;
+          bottom: -30%;
+          left: -10%;
+          width: 500px;
+          height: 500px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(45, 80, 22, 0.03) 0%, transparent 70%);
+          pointer-events: none;
         }
 
         .dashboard-header {
           margin-bottom: 48px;
+          position: relative;
+          z-index: 1;
         }
 
         .dashboard-header h1 {
           font-family: 'Playfair Display', serif;
           font-size: 42px;
           font-weight: 700;
-          color: #e8c97a;
+          color: #1F4D3A;
           letter-spacing: 0.02em;
           margin: 0 0 8px;
+          transition: color 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         .dashboard-header p {
-          font-size: 13px;
-          color: rgba(232,201,122,0.6);
+          font-size: 14px;
+          color: #5C524A;
           letter-spacing: 0.05em;
           margin: 0;
+          opacity: 0.8;
         }
 
         .dashboard-nav {
@@ -144,46 +186,60 @@ const AdminDashboard = () => {
           margin-bottom: 40px;
           gap: 24px;
           flex-wrap: wrap;
+          position: relative;
+          z-index: 1;
         }
 
         .btn-delivery {
-          background: #e8c97a;
+          background: linear-gradient(135deg, #1F4D3A, #2D5016);
           border: none;
           border-radius: 10px;
           padding: 12px 24px;
           font-family: 'DM Sans', sans-serif;
           font-size: 12px;
-          font-weight: 500;
+          font-weight: 600;
           letter-spacing: 0.1em;
           text-transform: uppercase;
-          color: #0f0c09;
+          color: white;
           cursor: pointer;
-          transition: all 0.2s;
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
           text-decoration: none;
           display: inline-flex;
           align-items: center;
           gap: 8px;
+          box-shadow: 0 8px 20px rgba(31, 77, 58, 0.15);
         }
 
         .btn-delivery:hover {
-          background: #f0d88e;
+          background: linear-gradient(135deg, #162d25, #1F4D3A);
           transform: translateY(-2px);
+          box-shadow: 0 12px 32px rgba(31, 77, 58, 0.3);
         }
 
         .stats-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          grid-template-columns: repeat(3, 1fr);
           gap: 20px;
           margin-bottom: 48px;
+          position: relative;
+          z-index: 1;
         }
 
         .stat-card {
-          background: linear-gradient(135deg, rgba(232,201,122,0.08) 0%, rgba(232,201,122,0.04) 100%);
-          border: 0.5px solid rgba(232,201,122,0.15);
-          border-radius: 12px;
+          background: white;
+          border: 1px solid #EBE0D1;
+          border-radius: 16px;
           padding: 28px;
           position: relative;
           overflow: hidden;
+          box-shadow: 0 8px 28px rgba(31, 77, 58, 0.06);
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .stat-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 16px 48px rgba(31, 77, 58, 0.1);
+          border-color: rgba(31, 77, 58, 0.2);
         }
 
         .stat-card::before {
@@ -193,7 +249,7 @@ const AdminDashboard = () => {
           right: -50%;
           width: 200px;
           height: 200px;
-          background-color: rgba(232,201,122,0.05);
+          background-color: radial-gradient(circle, rgba(31, 77, 58, 0.08) 0%, transparent 70%);
           border-radius: 50%;
           pointer-events: none;
         }
@@ -204,54 +260,66 @@ const AdminDashboard = () => {
         }
 
         .stat-label {
-          font-size: 10.5px;
-          font-weight: 500;
+          font-size: 11px;
+          font-weight: 600;
           letter-spacing: 0.1em;
           text-transform: uppercase;
-          color: rgba(232,201,122,0.6);
+          color: #5C524A;
           margin: 0 0 8px;
         }
 
         .stat-value {
           font-size: 28px;
           font-weight: 700;
-          color: #e8c97a;
+          color: #1F4D3A;
           margin: 0;
           letter-spacing: 0.01em;
+          font-family: 'Playfair Display', serif;
         }
 
         .admin-section {
           margin-bottom: 48px;
+          position: relative;
+          z-index: 1;
         }
 
         .admin-section h2 {
           font-family: 'Playfair Display', serif;
           font-size: 28px;
           font-weight: 700;
-          color: #e8c97a;
+          color: #1F4D3A;
           letter-spacing: 0.02em;
           margin: 0 0 12px;
+          transition: color 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         .admin-section p {
-          font-size: 13px;
-          color: rgba(232,201,122,0.6);
+          font-size: 14px;
+          color: #5C524A;
           letter-spacing: 0.05em;
           margin: 0 0 28px;
+          opacity: 0.8;
         }
 
         .product-form {
-          background: linear-gradient(135deg, rgba(232,201,122,0.08) 0%, rgba(232,201,122,0.04) 100%);
-          border: 0.5px solid rgba(232,201,122,0.15);
-          border-radius: 12px;
+          background: white;
+          border: 1px solid #EBE0D1;
+          border-radius: 16px;
           padding: 32px;
           margin-bottom: 28px;
+          box-shadow: 0 8px 28px rgba(31, 77, 58, 0.06);
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .product-form:hover {
+          box-shadow: 0 12px 40px rgba(31, 77, 58, 0.08);
+          border-color: rgba(31, 77, 58, 0.15);
         }
 
         .product-form h3 {
           font-family: 'Playfair Display', serif;
           font-size: 18px;
-          color: #e8c97a;
+          color: #1F4D3A;
           margin: 0 0 20px;
           font-weight: 700;
           letter-spacing: 0.01em;
@@ -271,36 +339,37 @@ const AdminDashboard = () => {
         }
 
         .form-label {
-          font-size: 10px;
-          font-weight: 500;
+          font-size: 11px;
+          font-weight: 600;
           letter-spacing: 0.12em;
           text-transform: uppercase;
-          color: rgba(232,201,122,0.5);
+          color: #5C524A;
         }
 
         .form-input,
         .form-select {
-          background: rgba(255,255,255,0.04);
-          border: 0.5px solid rgba(255,255,255,0.1);
-          border-radius: 8px;
+          background: white;
+          border: 1px solid #EBE0D1;
+          border-radius: 10px;
           padding: 12px 14px;
           font-family: 'DM Sans', sans-serif;
           font-size: 14px;
-          color: rgba(255,255,255,0.85);
+          color: #2B2320;
           outline: none;
-          transition: all 0.2s;
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
           width: 100%;
           box-sizing: border-box;
         }
 
         .form-input:focus,
         .form-select:focus {
-          border-color: rgba(232,201,122,0.45);
-          background: rgba(232,201,122,0.04);
+          border-color: #1F4D3A;
+          box-shadow: 0 0 0 3px rgba(31, 77, 58, 0.1);
+          background: #FFFBF8;
         }
 
         .form-input::placeholder {
-          color: rgba(255,255,255,0.16);
+          color: #9E9280;
         }
 
         .form-buttons {
@@ -312,42 +381,51 @@ const AdminDashboard = () => {
         .btn-submit,
         .btn-cancel {
           padding: 12px 24px;
-          border-radius: 8px;
+          border-radius: 10px;
           font-family: 'DM Sans', sans-serif;
           font-size: 12px;
-          font-weight: 500;
+          font-weight: 600;
           letter-spacing: 0.1em;
           text-transform: uppercase;
           cursor: pointer;
           border: none;
-          transition: all 0.2s;
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         .btn-submit {
-          background: #e8c97a;
-          color: #0f0c09;
+          background: linear-gradient(135deg, #1F4D3A, #2D5016);
+          color: white;
+          box-shadow: 0 8px 20px rgba(31, 77, 58, 0.15);
         }
 
         .btn-submit:hover {
-          background: #f0d88e;
+          background: linear-gradient(135deg, #162d25, #1F4D3A);
+          transform: translateY(-2px);
+          box-shadow: 0 12px 32px rgba(31, 77, 58, 0.3);
+        }
+
+        .btn-submit:active {
+          transform: translateY(0);
         }
 
         .btn-cancel {
-          background: rgba(232,201,122,0.1);
-          color: #e8c97a;
-          border: 0.5px solid rgba(232,201,122,0.3);
+          background: #EBE0D1;
+          color: #1F4D3A;
+          border: 1px solid #D5C5B8;
         }
 
         .btn-cancel:hover {
-          background: rgba(232,201,122,0.15);
+          background: #E0D0C3;
+          border-color: #1F4D3A;
         }
 
         .table-responsive {
           width: 100%;
           overflow-x: auto;
-          border-radius: 12px;
-          border: 0.5px solid rgba(232,201,122,0.15);
-          background: linear-gradient(135deg, rgba(232,201,122,0.04) 0%, rgba(232,201,122,0.02) 100%);
+          border-radius: 16px;
+          box-shadow: 0 8px 28px rgba(31, 77, 58, 0.06);
+          border: 1px solid #EBE0D1;
+          background: white;
         }
 
         .admin-table {
@@ -357,29 +435,29 @@ const AdminDashboard = () => {
         }
 
         .admin-table thead {
-          background: rgba(232,201,122,0.08);
-          border-bottom: 0.5px solid rgba(232,201,122,0.15);
+          background: linear-gradient(135deg, rgba(31, 77, 58, 0.04) 0%, rgba(31, 77, 58, 0.02) 100%);
+          border-bottom: 1px solid #EBE0D1;
         }
 
         .admin-table th {
           padding: 16px;
-          font-size: 10.5px;
+          font-size: 11px;
           font-weight: 600;
           letter-spacing: 0.1em;
           text-transform: uppercase;
-          color: #e8c97a;
+          color: #1F4D3A;
           text-align: left;
         }
 
         .admin-table td {
           padding: 16px;
           font-size: 14px;
-          color: rgba(255,255,255,0.75);
-          border-bottom: 0.5px solid rgba(232,201,122,0.08);
+          color: #2B2320;
+          border-bottom: 1px solid #EBE0D1;
         }
 
         .admin-table tbody tr:hover {
-          background: rgba(232,201,122,0.04);
+          background: linear-gradient(135deg, rgba(31, 77, 58, 0.02) 0%, transparent 100%);
         }
 
         .table-actions {
@@ -389,51 +467,69 @@ const AdminDashboard = () => {
 
         .btn-edit,
         .btn-delete {
-          padding: 6px 12px;
-          border: 0.5px solid rgba(232,201,122,0.3);
-          border-radius: 6px;
+          padding: 8px 14px;
+          border: 1px solid #1F4D3A;
+          border-radius: 8px;
           font-family: 'DM Sans', sans-serif;
           font-size: 11px;
-          font-weight: 500;
+          font-weight: 600;
           letter-spacing: 0.08em;
           text-transform: uppercase;
           cursor: pointer;
-          transition: all 0.2s;
-          background: transparent;
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+          background: white;
         }
 
         .btn-edit {
-          color: #e8c97a;
+          color: #1F4D3A;
+          border-color: #1F4D3A;
         }
 
         .btn-edit:hover {
-          background: rgba(232,201,122,0.15);
-          border-color: rgba(232,201,122,0.5);
+          background: #1F4D3A;
+          color: white;
+          box-shadow: 0 6px 16px rgba(31, 77, 58, 0.2);
         }
 
         .btn-delete {
-          color: #ff6b6b;
-          border-color: rgba(255,107,107,0.3);
+          color: #C0392B;
+          border-color: #C0392B;
         }
 
         .btn-delete:hover {
-          background: rgba(255,107,107,0.15);
-          border-color: rgba(255,107,107,0.5);
+          background: #C0392B;
+          color: white;
+          box-shadow: 0 6px 16px rgba(192, 57, 43, 0.2);
         }
 
         .empty-state {
           text-align: center;
           padding: 48px 24px;
-          color: rgba(232,201,122,0.5);
+          color: #5C524A;
           font-size: 14px;
+          background: white;
+          border: 1px solid #EBE0D1;
+          border-radius: 16px;
+          box-shadow: 0 8px 28px rgba(31, 77, 58, 0.06);
         }
 
         @media (max-width: 768px) {
-          .admin-dashboard { padding: 24px 16px; }
-          .stats-grid { grid-template-columns: 1fr; }
-          .dashboard-header h1 { font-size: 32px; }
-          .form-wrapper { grid-template-columns: 1fr; }
-          .btn-delivery { width: 100%; justify-content: center; }
+          .admin-dashboard { 
+            padding: 24px 16px; 
+          }
+          .stats-grid { 
+            grid-template-columns: 1fr; 
+          }
+          .dashboard-header h1 { 
+            font-size: 32px; 
+          }
+          .form-wrapper { 
+            grid-template-columns: 1fr; 
+          }
+          .btn-delivery { 
+            width: 100%; 
+            justify-content: center; 
+          }
         }
       `}</style>
 
@@ -534,6 +630,21 @@ const AdminDashboard = () => {
               </div>
 
               <div className="form-group">
+                <label className="form-label">Category</label>
+                <select 
+                  name="category_name" 
+                  value={productForm.category_name || ''} 
+                  onChange={handleProductChange}
+                  className="form-select"
+                  required
+                >
+                  <option value="">Select Category</option>
+                  <option value="Coffee">Coffee</option>
+                  <option value="Cookies">Cookies</option>
+                </select>
+              </div>
+
+              <div className="form-group">
                 <label className="form-label">Image</label>
                 <input 
                   type="file" 
@@ -564,7 +675,7 @@ const AdminDashboard = () => {
                   className="btn-cancel"
                   onClick={() => { 
                     setEditing(false); 
-                    setProductForm({ name: '', description: '', price: '', stock: '', image_url: '', imageFile: null, status: 'available', id: null }); 
+                    setProductForm({ name: '', description: '', price: '', stock: '', image_url: '', imageFile: null, status: 'available', category_name: '', id: null }); 
                   }}
                 >
                   Cancel

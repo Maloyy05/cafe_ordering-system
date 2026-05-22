@@ -171,11 +171,27 @@ const createOrder = async (req, res, next) => {
       const file = req.file;
       const ext = (file.originalname || '').split('.').pop();
       const filename = `payment-proofs/${uuidv4()}.${ext}`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('payment-proofs')
-        .upload(filename, file.buffer, { contentType: file.mimetype, upsert: true });
-      if (uploadError) throw uploadError;
-      const { data: publicData } = supabase.storage.from('payment-proofs').getPublicUrl(filename);
+      const bucketName = 'payment-proofs';
+      let uploadResp;
+      try {
+        uploadResp = await supabase.storage.from(bucketName).upload(filename, file.buffer, { contentType: file.mimetype, upsert: true });
+      } catch (e) {
+        uploadResp = { error: e };
+      }
+      const uploadError = uploadResp.error;
+      // If bucket missing, try to create it with service role key
+      if (uploadError && /bucket not found|no bucket/i.test(uploadError.message || '')) {
+        if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+          const { error: createErr } = await supabase.storage.createBucket(bucketName, { public: true });
+          if (createErr) return res.status(500).json({ message: `Failed to create bucket '${bucketName}': ${createErr.message || createErr}` });
+          const { data: retryData, error: retryErr } = await supabase.storage.from(bucketName).upload(filename, file.buffer, { contentType: file.mimetype, upsert: true });
+          if (retryErr) return res.status(500).json({ message: `Upload failed after creating bucket: ${retryErr.message || retryErr}` });
+        } else {
+          return res.status(500).json({ message: `Storage bucket '${bucketName}' not found and server lacks SUPABASE_SERVICE_ROLE_KEY to create it.` });
+        }
+      }
+      if (uploadError) return res.status(500).json({ message: uploadError.message || 'Upload failed' });
+      const { data: publicData } = supabase.storage.from(bucketName).getPublicUrl(filename);
       payment_proof_url = publicData.publicUrl;
     }
 
@@ -368,11 +384,26 @@ const verifyPayment = async (req, res, next) => {
       const file = req.file;
       const ext = (file.originalname || '').split('.').pop();
       const filename = `payment-proofs/${uuidv4()}.${ext}`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('payment-proofs')
-        .upload(filename, file.buffer, { contentType: file.mimetype, upsert: true });
-      if (uploadError) throw uploadError;
-      const { data: publicData } = supabase.storage.from('payment-proofs').getPublicUrl(filename);
+      const bucketName = 'payment-proofs';
+      let uploadResp;
+      try {
+        uploadResp = await supabase.storage.from(bucketName).upload(filename, file.buffer, { contentType: file.mimetype, upsert: true });
+      } catch (e) {
+        uploadResp = { error: e };
+      }
+      const uploadError = uploadResp.error;
+      if (uploadError && /bucket not found|no bucket/i.test(uploadError.message || '')) {
+        if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+          const { error: createErr } = await supabase.storage.createBucket(bucketName, { public: true });
+          if (createErr) return res.status(500).json({ message: `Failed to create bucket '${bucketName}': ${createErr.message || createErr}` });
+          const { data: retryData, error: retryErr } = await supabase.storage.from(bucketName).upload(filename, file.buffer, { contentType: file.mimetype, upsert: true });
+          if (retryErr) return res.status(500).json({ message: `Upload failed after creating bucket: ${retryErr.message || retryErr}` });
+        } else {
+          return res.status(500).json({ message: `Storage bucket '${bucketName}' not found and server lacks SUPABASE_SERVICE_ROLE_KEY to create it.` });
+        }
+      }
+      if (uploadError) return res.status(500).json({ message: uploadError.message || 'Upload failed' });
+      const { data: publicData } = supabase.storage.from(bucketName).getPublicUrl(filename);
       payment_proof_url = publicData.publicUrl;
     }
 

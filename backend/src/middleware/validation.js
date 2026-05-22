@@ -12,6 +12,7 @@ const schemas = {
     description: Joi.string().allow('', null),
     price: Joi.number().min(0).required(),
     category_id: Joi.string().uuid().allow(null),
+    category_name: Joi.string().min(1).required(),
     stock: Joi.number().integer().min(0).default(0),
     status: Joi.string().valid('available', 'out_of_stock', 'archived').default('available'),
     image_url: Joi.string().uri().allow('', null),

@@ -16,6 +16,10 @@ const getStaff = async (req, res, next) => {
 
 const createStaff = async (req, res, next) => {
   const { name, username, password } = req.body;
+  // Ensure server has sufficient Supabase privileges for inserts
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY && !process.env.SUPABASE_ANON_KEY) {
+    return res.status(500).json({ message: 'Supabase keys are not configured on the server. Set SUPABASE_SERVICE_ROLE_KEY in .env.' });
+  }
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const { data, error } = await supabase
@@ -25,7 +29,9 @@ const createStaff = async (req, res, next) => {
     if (error) throw error;
     res.status(201).json(data[0]);
   } catch (err) {
-    next(err);
+    // If supabase returned an error, normalize it to a readable message
+    const message = err?.message || err?.error_description || 'Failed to create staff';
+    return res.status(500).json({ message });
   }
 };
 

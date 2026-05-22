@@ -122,61 +122,448 @@ const StaffDashboard = () => {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
 
-        .staff-dashboard { min-height: calc(100vh - 72px); padding:28px 36px; background: linear-gradient(180deg,#0a0806 0%, #0f0c09 100%); color: rgba(255,255,255,0.92); font-family: 'DM Sans', sans-serif }
-        .staff-dashboard h1 { font-family:'Playfair Display', serif; color:#e8c97a; margin-bottom:12px }
+        .staff-dashboard { 
+          min-height: calc(100vh - 72px); 
+          padding: 28px 36px; 
+          background: #F8F5F0; 
+          color: #2B2320; 
+          font-family: 'DM Sans', sans-serif;
+        }
 
+        .staff-dashboard h1 { 
+          font-family: 'Playfair Display', serif; 
+          color: #1F4D3A; 
+          margin-bottom: 28px;
+          font-size: 32px;
+        }
+
+        /* Modern Filter Bar */
+        .staff-filters {
+          background: white;
+          padding: 20px 24px;
+          border-radius: 16px;
+          margin-bottom: 28px;
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          flex-wrap: wrap;
+          box-shadow: 0 8px 24px rgba(31, 77, 58, 0.08);
+          border: 1px solid rgba(31, 77, 58, 0.05);
+        }
+
+        .filter-group {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          flex-wrap: wrap;
+          flex: 1;
+          min-width: 200px;
+        }
+
+        .filter-label {
+          font-size: 13px;
+          font-weight: 600;
+          color: #6B6B6B;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          white-space: nowrap;
+        }
+
+        .staff-filters select,
+        .staff-filters input {
+          padding: 12px 16px;
+          border-radius: 12px;
+          background: #FAFAFA;
+          border: 1.5px solid #EBE0D1;
+          color: #2B2320;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 14px;
+          font-weight: 500;
+          transition: all 0.2s ease;
+          flex: 1;
+          min-width: 140px;
+          box-sizing: border-box;
+        }
+
+        .staff-filters select:hover,
+        .staff-filters input:hover {
+          border-color: #1F4D3A;
+          background: #FFFFFF;
+          box-shadow: 0 4px 12px rgba(31, 77, 58, 0.06);
+        }
+
+        .staff-filters select:focus,
+        .staff-filters input:focus {
+          outline: none;
+          border-color: #1F4D3A;
+          background: #FFFFFF;
+          box-shadow: 0 6px 20px rgba(31, 77, 58, 0.12);
+        }
+
+        /* Checkbox Styling */
+        .checkbox-group {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 16px;
+          background: #FAFAFA;
+          border-radius: 12px;
+          border: 1.5px solid #EBE0D1;
+          transition: all 0.2s ease;
+          cursor: pointer;
+        }
+
+        .checkbox-group:hover {
+          border-color: #1F4D3A;
+          background: #FFFFFF;
+          box-shadow: 0 4px 12px rgba(31, 77, 58, 0.06);
+        }
+
+        .checkbox-group input[type="checkbox"] {
+          width: 18px;
+          height: 18px;
+          cursor: pointer;
+          accent-color: #1F4D3A;
+        }
+
+        .checkbox-group label {
+          font-size: 14px;
+          font-weight: 500;
+          color: #2B2320;
+          cursor: pointer;
+          margin: 0;
+        }
+
+        /* Order Cards */
         .orders-list { 
           display: grid; 
-          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
-          gap: 16px; 
+          grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); 
+          gap: 18px;
         }
-        .order-card { background: rgba(255,255,255,0.02); border: 0.5px solid rgba(232,201,122,0.06); padding:16px; border-radius:10px; display: flex; flex-direction: column; }
-        .order-header { display:flex; justify-content:space-between; align-items:center }
-        .order-header h3 { margin:0; }
-        .order-status { background: rgba(232,201,122,0.08); color:#e8c97a; padding:6px 10px; border-radius:8px; font-weight:700 }
 
-        .order-body p { margin:6px 0 }
-        .order-items { margin-top:8px; display:flex; gap:8px; flex-wrap:wrap }
-        .order-item { background: rgba(255,255,255,0.03); padding:6px 10px; border-radius:8px }
+        .order-card { 
+          background: white; 
+          border: 1px solid #EBE0D1;
+          padding: 18px; 
+          border-radius: 14px; 
+          display: flex; 
+          flex-direction: column; 
+          gap: 12px;
+          box-shadow: 0 10px 30px rgba(31, 77, 58, 0.04);
+          transition: all 0.3s ease;
+        }
 
-        .order-actions { display:flex; gap:8px; margin-top: auto; padding-top: 12px; flex-wrap: wrap; }
-        .btn-verify, .btn-preparing, .btn-ready, .btn-complete, .btn-reject { padding:8px 12px; border-radius:8px; border:none; cursor:pointer; flex: 1; text-align: center; font-size: 13px; font-weight: 500; }
-        .btn-verify { background: linear-gradient(135deg,#e8c97a,#f0d88e); color:#0f0c09 }
-        .btn-reject { background: rgba(255,107,107,0.12); color:#ff6b6b; border:0.5px solid rgba(255,107,107,0.18) }
+        .order-card:hover {
+          box-shadow: 0 15px 40px rgba(31, 77, 58, 0.08);
+          transform: translateY(-2px);
+        }
 
-        @media (max-width:640px){ 
-          .staff-dashboard{padding:20px 16px;} 
+        .order-header { 
+          display: flex; 
+          justify-content: space-between; 
+          align-items: flex-start;
+          gap: 12px;
+        }
+
+        .order-meta {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+
+        .order-number { 
+          font-family: 'Playfair Display', serif;
+          color: #1F4D3A; 
+          font-size: 18px; 
+          font-weight: 700;
+          margin: 0;
+        }
+
+        .order-time {
+          font-size: 12px;
+          color: #6B6B6B;
+        }
+
+        /* Status Badges */
+        .order-status { 
+          padding: 6px 12px; 
+          border-radius: 999px; 
+          font-weight: 700;
+          font-size: 12px;
+          display: inline-block;
+          text-transform: capitalize;
+          white-space: nowrap;
+        }
+
+        .order-status.pending { 
+          background: #FFF7E6; 
+          color: #C47A00;
+          border: 1px solid #F4E1C1;
+        }
+
+        .order-status.preparing { 
+          background: #E9F7EF; 
+          color: #1F7A3A;
+          border: 1px solid #CFEFD9;
+        }
+
+        .order-status.ready,
+        .order-status.out { 
+          background: #E8F8FF; 
+          color: #0B6A8B;
+          border: 1px solid #CDEDF6;
+        }
+
+        .order-status.completed,
+        .order-status.delivered { 
+          background: #F0FFF4; 
+          color: #086A2E;
+          border: 1px solid #DFF1DF;
+        }
+
+        .order-status.served {
+          background: #E9F7EF;
+          color: #1F7A3A;
+          border: 1px solid #CFEFD9;
+        }
+
+        .order-status.cancelled { 
+          background: #FFF5F5; 
+          color: #B02A2A;
+          border: 1px solid #F5DADA;
+        }
+
+        .order-body { 
+          display: flex; 
+          gap: 12px; 
+          flex-direction: column;
+        }
+
+        .order-info {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          font-size: 14px;
+          color: #3C3C3C;
+        }
+
+        .order-info strong {
+          color: #1F4D3A;
+        }
+
+        .order-info p {
+          margin: 0;
+          line-height: 1.4;
+        }
+
+        .order-items { 
+          margin-top: 4px; 
+          display: flex; 
+          gap: 8px; 
+          flex-wrap: wrap;
+        }
+
+        .order-item { 
+          background: #FAFAFA; 
+          padding: 6px 10px; 
+          border-radius: 8px;
+          font-size: 12px;
+          color: #2B2320;
+          border: 1px solid #EBE0D1;
+        }
+
+        .order-timestamps {
+          font-size: 12px;
+          color: #6B6B6B;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          margin-top: 4px;
+        }
+
+        .order-footer {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          margin-top: 8px;
+          padding-top: 12px;
+          border-top: 1px solid #EBE0D1;
+        }
+
+        .order-total {
+          font-weight: 700;
+          color: #1F4D3A;
+          font-size: 16px;
+        }
+
+        .order-payment {
+          font-size: 13px;
+          color: #6B6B6B;
+        }
+
+        .order-actions { 
+          display: flex; 
+          gap: 8px; 
+          margin-top: auto; 
+          flex-wrap: wrap;
+        }
+
+        .order-actions button,
+        .order-actions select {
+          padding: 10px 14px;
+          border-radius: 10px;
+          border: none;
+          cursor: pointer;
+          font-size: 13px;
+          font-weight: 600;
+          transition: all 0.2s ease;
+          flex: 1;
+          text-align: center;
+        }
+
+        .order-actions select {
+          background: #FAFAFA;
+          border: 1.5px solid #EBE0D1;
+          color: #2B2320;
+        }
+
+        .order-actions select:hover {
+          border-color: #1F4D3A;
+          background: #FFFFFF;
+          box-shadow: 0 4px 12px rgba(31, 77, 58, 0.06);
+        }
+
+        .btn-verify,
+        .btn-preparing,
+        .btn-ready,
+        .btn-complete {
+          background: linear-gradient(135deg, #1F4D3A 0%, #2D5016 100%);
+          color: white;
+          box-shadow: 0 4px 12px rgba(31, 77, 58, 0.1);
+        }
+
+        .btn-verify:hover,
+        .btn-preparing:hover,
+        .btn-ready:hover,
+        .btn-complete:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 16px rgba(31, 77, 58, 0.15);
+        }
+
+        .btn-verify:disabled,
+        .btn-preparing:disabled,
+        .btn-ready:disabled,
+        .btn-complete:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none;
+        }
+
+        .btn-reject { 
+          background: #FFF5F5; 
+          color: #C0392B;
+          border: 1.5px solid #F2B5B5;
+        }
+
+        .btn-reject:hover {
+          background: #FFE8E8;
+          border-color: #E07070;
+          box-shadow: 0 4px 12px rgba(192, 57, 43, 0.08);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) { 
+          .staff-filters { 
+            padding: 18px 20px;
+          }
+          .orders-list { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+        }
+
+        @media (max-width: 900px) { 
+          .staff-filters { 
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 14px;
+          }
+          .filter-group {
+            width: 100%;
+            min-width: unset;
+          }
+          .staff-filters select,
+          .staff-filters input {
+            width: 100%;
+            min-width: unset;
+          }
+          .checkbox-group {
+            width: 100%;
+          }
           .orders-list { grid-template-columns: 1fr; }
-          .order-card{padding:14px;} 
-          .staff-dashboard select { width: 100%; box-sizing: border-box; padding: 10px; border-radius: 8px; margin-bottom: 8px; background: rgba(255,255,255,0.04); color: white; border: 0.5px solid rgba(255,255,255,0.1); }
+        }
+
+        @media (max-width: 640px) { 
+          .staff-dashboard {
+            padding: 18px 12px;
+          }
+          .staff-dashboard h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+          }
+          .staff-filters { 
+            padding: 16px 14px;
+            border-radius: 14px;
+          }
+          .filter-label {
+            font-size: 12px;
+          }
+          .staff-filters select,
+          .staff-filters input {
+            padding: 10px 14px;
+            font-size: 13px;
+          }
+          .order-card { 
+            padding: 14px;
+          }
+          .order-number {
+            font-size: 16px;
+          }
         }
       `}</style>
 
       <div className="staff-dashboard">
-        <h1>Incoming Orders</h1>
-        <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
-          <select value={dateFilter} onChange={(e) => setDateFilter(e.target.value)}>
-            <option value="today">Today</option>
-            <option value="week">This Week</option>
-            <option value="month">This Month</option>
-            <option value="all">All Time</option>
-          </select>
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-            <option value="all">All Statuses</option>
-            <option value="Pending">Pending</option>
-            <option value="Preparing">Preparing</option>
-            <option value="Ready for Pickup">Ready for Pickup</option>
-            <option value="Served">Served</option>
-            <option value="Out for Delivery">Out for Delivery</option>
-            <option value="Delivered">Delivered</option>
-            <option value="Completed">Completed</option>
-          </select>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <input type="checkbox" checked={showCancelled} onChange={(e) => setShowCancelled(e.target.checked)} />
-            Show Cancelled
-          </label>
+        <h1>📋 Incoming Orders</h1>
+
+        <div className="staff-filters">
+          <div className="filter-group">
+            <span className="filter-label">Date</span>
+            <select value={dateFilter} onChange={(e) => setDateFilter(e.target.value)}>
+              <option value="today">Today</option>
+              <option value="week">This Week</option>
+              <option value="month">This Month</option>
+              <option value="all">All Time</option>
+            </select>
+          </div>
+
+          <div className="filter-group">
+            <span className="filter-label">Status</span>
+            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+              <option value="all">All Statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="Preparing">Preparing</option>
+              <option value="Ready for Pickup">Ready for Pickup</option>
+              <option value="Served">Served</option>
+              <option value="Out for Delivery">Out for Delivery</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+
+          <div className="checkbox-group">
+            <input type="checkbox" id="showCancelledChk" checked={showCancelled} onChange={(e) => setShowCancelled(e.target.checked)} />
+            <label htmlFor="showCancelledChk">Show Cancelled</label>
+          </div>
         </div>
         <div className="orders-list">
           {orders
@@ -196,101 +583,129 @@ const StaffDashboard = () => {
             })
             .filter(order => statusFilter === 'all' || order.status === statusFilter)
             .filter(order => showCancelled || order.status !== 'Cancelled')
-            .map(order => (
-              <div key={order.id} className={`order-card status-${order.status.toLowerCase()}`}>
-                <div className="order-header">
-                  <h3>{order.order_number}</h3>
-                  <span className="order-status">{order.status}</span>
-                </div>
-                <div className="order-body">
-                  <p><strong>Customer:</strong> {order.customer_name}</p>
-                  {order.order_type === 'Delivery' && (
-                    <>
-                      <p><strong>Contact:</strong> {order.contact_number}</p>
-                      <p><strong>Address:</strong> {order.address}</p>
-                      <p><strong>Landmark:</strong> {order.landmark}</p>
-                      <p><strong>Payment:</strong> {order.payment_method} ({order.payment_status || 'N/A'})</p>
-                      {order.payment_proof && (
-                        <p><a href={order.payment_proof} target="_blank" rel="noreferrer">View Payment Proof</a></p>
-                      )}
-                      {order.status === 'Cancelled' && (
-                        <p><strong>Cancellation:</strong> {order.cancellation_reason || '—'}{order.cancellation_time && (
-                          <span> — {new Date(order.cancellation_time).toLocaleString()}</span>
-                        )}</p>
-                      )}
-                    </>
-                  )}
-                  <p><strong>Total:</strong> {formatCurrencyPHP(order.total_amount)}</p>
-                  {/* Order Timestamps */}
-                  <div style={{ marginTop: 8, fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>
-                    <div>Placed: {new Date(order.created_at).toLocaleString()}</div>
-                    {order.delivery_started_at && <div>Delivery Started: {new Date(order.delivery_started_at).toLocaleString()}</div>}
-                    {order.delivered_at && <div>Delivered: {new Date(order.delivered_at).toLocaleString()}</div>}
-                    {order.status === 'Completed' && order.updated_at && <div>Completed: {new Date(order.updated_at).toLocaleString()}</div>}
+            .map(order => {
+              const badgeClass = (status => {
+                if (!status) return 'pending';
+                const s = status.toLowerCase();
+                if (s.includes('pending')) return 'pending';
+                if (s.includes('prepar')) return 'preparing';
+                if (s.includes('ready')) return 'ready';
+                if (s.includes('served')) return 'served';
+                if (s.includes('out for') || s.includes('delivery')) return 'out';
+                if (s.includes('deliver') && s.includes('delivered')) return 'delivered';
+                if (s.includes('complet')) return 'completed';
+                if (s.includes('cancel')) return 'cancelled';
+                return 'pending';
+              })(order.status);
+
+              return (
+                <div key={order.id} className="order-card">
+                  <div className="order-header">
+                    <div className="order-meta">
+                      <div className="order-number">{order.order_number}</div>
+                      <div className="order-time">{new Date(order.created_at).toLocaleString()}</div>
+                    </div>
+                    <div>
+                      <span className={`order-status ${badgeClass}`}>{order.status}</span>
+                    </div>
                   </div>
-                  <div className="order-items">
-                    {order.order_items.map(item => (
-                      <div key={item.id} className="order-item">
-                        {item.products.name} x {item.quantity}
-                      </div>
-                    ))}
+
+                  <div className="order-body">
+                    <div className="order-info">
+                      <p><strong>Customer:</strong> {order.customer_name}</p>
+                      {order.order_type === 'Delivery' && (
+                        <>
+                          <p><strong>Contact:</strong> {order.contact_number}</p>
+                          <p><strong>Address:</strong> {order.address} {order.landmark ? `· ${order.landmark}` : ''}</p>
+                          <p><strong>Payment:</strong> {order.payment_method} · {order.payment_status || 'N/A'}</p>
+                          {order.payment_proof && (
+                            <p><a href={order.payment_proof} target="_blank" rel="noreferrer" style={{ color: '#1F4D3A', textDecoration: 'none', fontWeight: 600 }}>🔍 View Payment Proof</a></p>
+                          )}
+                          {order.status === 'Cancelled' && (
+                            <p style={{color:'#B02A2A'}}><strong>Cancellation:</strong> {order.cancellation_reason || '—'}{order.cancellation_time && (
+                              <span> · {new Date(order.cancellation_time).toLocaleString()}</span>
+                            )}</p>
+                          )}
+                        </>
+                      )}
+                    </div>
+
+                    <div className="order-items">
+                      {order.order_items && order.order_items.map(item => (
+                        <div key={item.id} className="order-item">
+                          {item.products?.name || 'Item'} ×{item.quantity}
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="order-timestamps">
+                      <div>📍 Placed: {new Date(order.created_at).toLocaleString()}</div>
+                      {order.delivery_started_at && <div>🚚 Delivery Started: {new Date(order.delivery_started_at).toLocaleString()}</div>}
+                      {order.delivered_at && <div>✓ Delivered: {new Date(order.delivered_at).toLocaleString()}</div>}
+                      {order.status === 'Completed' && order.updated_at && <div>✅ Completed: {new Date(order.updated_at).toLocaleString()}</div>}
+                    </div>
                   </div>
-                </div>
-                <div className="order-actions">
-                  {order.order_type === 'Delivery' && order.payment_status === 'Pending Verification' && (
-                    <>
-                      <button onClick={() => verifyPayment(order.id, 'verify')} className="btn-verify">Verify Payment</button>
-                      <button onClick={() => verifyPayment(order.id, 'reject')} className="btn-reject">Reject Payment</button>
-                    </>
-                  )}
-                  {order.status === 'Pending' && (
-                    <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Preparing')} className="btn-preparing">Start Preparing</button>
-                  )}
 
-                  {order.status === 'Preparing' && (
-                    order.order_type === 'Delivery' ? (
-                      <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Out for Delivery')} className="btn-ready">Mark Out for Delivery</button>
-                    ) : order.order_type === 'Dine-in' ? (
-                      <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Served')} className="btn-ready">Mark Served</button>
-                    ) : (
-                      <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Ready for Pickup')} className="btn-ready">Mark Ready for Pickup</button>
-                    )
-                  )}
+                  <div className="order-footer">
+                    <div className="order-total">{formatCurrencyPHP(order.total_amount)}</div>
+                    {order.order_type === 'Delivery' && (
+                      <div className="order-payment">{order.order_type}</div>
+                    )}
+                  </div>
 
-                  {order.status === 'Ready for Pickup' && (
-                    <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Completed')} className="btn-complete">Complete Order</button>
-                  )}
+                  <div className="order-actions">
+                    {order.order_type === 'Delivery' && order.payment_status === 'Pending Verification' && (
+                      <>
+                        <button onClick={() => verifyPayment(order.id, 'verify')} className="btn-verify" title="Mark payment as Paid">✅ Verify</button>
+                        <button onClick={() => verifyPayment(order.id, 'reject')} className="btn-reject" title="Reject payment">✖ Reject</button>
+                      </>
+                    )}
+                    {order.status === 'Pending' && (
+                      <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Preparing')} className="btn-preparing">Start Preparing</button>
+                    )}
 
-                  {order.status === 'Served' && (
-                    <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Completed')} className="btn-complete">Complete Order</button>
-                  )}
+                    {order.status === 'Preparing' && (
+                      order.order_type === 'Delivery' ? (
+                        <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Out for Delivery')} className="btn-ready">Mark Out for Delivery</button>
+                      ) : order.order_type === 'Dine-in' ? (
+                        <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Served')} className="btn-ready">Mark Served</button>
+                      ) : (
+                        <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Ready for Pickup')} className="btn-ready">Mark Ready</button>
+                      )
+                    )}
 
-                  {order.status === 'Out for Delivery' && (
-                    <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Delivered')} className="btn-ready">Mark Delivered</button>
-                  )}
-
-                  {order.status === 'Delivered' && (
-                    user && user.role === 'admin' ? (
+                    {order.status === 'Ready for Pickup' && (
                       <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Completed')} className="btn-complete">Complete Order</button>
-                    ) : (
-                      <button onClick={() => toast('Waiting for admin to finalize delivery')} className="btn-complete">Awaiting Completion</button>
-                    )
-                  )}
+                    )}
 
-                  {/* generic actions dropdown for other allowed transitions */}
-                  {nextActionsFor(order).length > 0 && (
-                    <div style={{ marginLeft: 8 }}>
-                      <select disabled={updatingIds.includes(order.id)} onChange={(e) => updateStatus(order.id, e.target.value)} value="">
+                    {order.status === 'Served' && (
+                      <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Completed')} className="btn-complete">Complete Order</button>
+                    )}
+
+                    {order.status === 'Out for Delivery' && (
+                      <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Delivered')} className="btn-ready">Mark Delivered</button>
+                    )}
+
+                    {order.status === 'Delivered' && (
+                      user && user.role === 'admin' ? (
+                        <button disabled={updatingIds.includes(order.id)} onClick={() => updateStatus(order.id, 'Completed')} className="btn-complete">Complete Order</button>
+                      ) : (
+                        <button onClick={() => toast('Waiting for admin to finalize delivery')} className="btn-complete">Awaiting Completion</button>
+                      )
+                    )}
+
+                    {nextActionsFor(order).length > 0 && (
+                      <select className="order-actions" disabled={updatingIds.includes(order.id)} onChange={(e) => { if (e.target.value) updateStatus(order.id, e.target.value); e.target.value=''; }}>
                         <option value="">More...</option>
                         {nextActionsFor(order).map(s => (
                           <option key={s} value={s}>{s}</option>
                         ))}
                       </select>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
         </div>
       </div>
     </>

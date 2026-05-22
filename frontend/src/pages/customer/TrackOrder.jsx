@@ -78,40 +78,233 @@ const TrackOrder = () => {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
 
         .track-order {
           min-height: calc(100vh - 72px);
-          padding: 28px 36px;
-          background: linear-gradient(180deg,#0a0806 0%, #0f0c09 100%);
-          color: rgba(255,255,255,0.92);
+          padding: 48px 36px;
+          background: linear-gradient(135deg, #FAF7F2 0%, #F5EFE7 100%);
+          color: #2B2320;
           font-family: 'DM Sans', sans-serif;
         }
+
         .track-content {
           max-width: 800px;
           margin: 0 auto;
         }
 
-        .track-content h1 { font-family: 'Playfair Display', serif; color:#e8c97a; margin:0 0 14px; }
+        .track-content h1 {
+          font-family: 'Playfair Display', serif;
+          color: #2D5016;
+          margin: 0 0 12px;
+          font-size: 36px;
+          font-weight: 700;
+        }
 
-        .track-order form { display:flex; gap:8px; margin-bottom:12px; }
-        .track-order input[type="text"], .track-order input[type="search"] { padding:8px 10px; border-radius:8px; border:0.5px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.9); }
+        .track-order form {
+          display: flex;
+          gap: 12px;
+          margin-bottom: 24px;
+        }
 
-        .btn-primary { padding:8px 12px; background: linear-gradient(135deg,#e8c97a,#f0d88e); border:none; border-radius:8px; color:#0f0c09; cursor:pointer; }
-        .btn-danger { padding:8px 12px; background: rgba(255,107,107,0.12); border: 0.5px solid rgba(255,107,107,0.18); color:#ff6b6b; border-radius:8px; cursor:pointer; }
+        .track-order input[type="text"],
+        .track-order input[type="search"] {
+          flex: 1;
+          padding: 12px 14px;
+          border-radius: 10px;
+          border: 1.5px solid #EBE0D1;
+          background: rgba(212, 132, 78, 0.02);
+          color: #2B2320;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 14px;
+          transition: all 0.2s;
+        }
 
-        .track-order .order-card { background: rgba(255,255,255,0.02); border: 0.5px solid rgba(232,201,122,0.06); padding:14px; border-radius:10px; margin-top:12px; }
+        .track-order input[type="text"]:focus,
+        .track-order input[type="search"]:focus {
+          outline: none;
+          border-color: #D4844E;
+          background: rgba(212, 132, 78, 0.06);
+          box-shadow: 0 0 0 3px rgba(212, 132, 78, 0.08);
+        }
 
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; }
-        .modal-card { background:#13100d; color: rgba(255,255,255,0.92); padding:18px; border-radius:10px; width: 92%; max-width:480px; border:0.5px solid rgba(232,201,122,0.08); }
-        .modal-card h3 { margin:0 0 8px; font-family:'Playfair Display', serif; color:#e8c97a }
-        .modal-card textarea { width:100%; min-height:100px; padding:10px; border-radius:8px; background: rgba(255,255,255,0.02); border:0.5px solid rgba(255,255,255,0.06); color:rgba(255,255,255,0.92); }
+        .btn-primary {
+          padding: 12px 24px;
+          background: linear-gradient(135deg, #2D5016, #4A7C2E);
+          border: none;
+          border-radius: 10px;
+          color: white;
+          cursor: pointer;
+          font-weight: 700;
+          font-size: 13px;
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+          box-shadow: 0 8px 20px rgba(45, 80, 22, 0.15);
+        }
 
-        @media (max-width:640px){ 
-          .track-order{padding:20px 16px;} 
-          .track-order form { flex-direction: column; }
-          .track-order input[type="text"], .track-order input[type="search"] { width: 100%; box-sizing: border-box; }
-          .modal-card{max-width:94%;} 
+        .btn-primary:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 12px 28px rgba(45, 80, 22, 0.25);
+          background: linear-gradient(135deg, #1F3710, #2D5016);
+        }
+
+        .btn-danger {
+          padding: 12px 24px;
+          background: rgba(231, 76, 60, 0.08);
+          border: 1px solid rgba(231, 76, 60, 0.2);
+          color: #E74C3C;
+          border-radius: 10px;
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 13px;
+          transition: all 0.2s;
+        }
+
+        .btn-danger:hover {
+          background: rgba(231, 76, 60, 0.12);
+          border-color: rgba(231, 76, 60, 0.4);
+        }
+
+        .track-order .order-card {
+          background: white;
+          border: 1px solid #EBE0D1;
+          padding: 18px;
+          border-radius: 12px;
+          margin-top: 16px;
+          box-shadow: 0 4px 12px rgba(45, 80, 22, 0.04);
+        }
+
+        .track-order .order-card h2 {
+          margin: 0 0 8px;
+          font-family: 'Playfair Display', serif;
+          color: #2D5016;
+          font-size: 22px;
+          font-weight: 700;
+        }
+
+        .track-order .order-card p {
+          margin: 6px 0;
+          color: #5C524A;
+          font-size: 14px;
+        }
+
+        .modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.4);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+        }
+
+        .modal-card {
+          background: white;
+          color: #2B2320;
+          padding: 28px;
+          border-radius: 16px;
+          width: 92%;
+          max-width: 480px;
+          border: 1px solid #EBE0D1;
+          box-shadow: 0 16px 56px rgba(45, 80, 22, 0.15);
+        }
+
+        .modal-card h3 {
+          margin: 0 0 12px;
+          font-family: 'Playfair Display', serif;
+          color: #2D5016;
+          font-size: 20px;
+          font-weight: 700;
+        }
+
+        .modal-card textarea {
+          width: 100%;
+          min-height: 100px;
+          padding: 12px;
+          border-radius: 10px;
+          background: rgba(212, 132, 78, 0.02);
+          border: 1.5px solid #EBE0D1;
+          color: #2B2320;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 14px;
+          resize: vertical;
+          transition: all 0.2s;
+        }
+
+        .modal-card textarea:focus {
+          outline: none;
+          border-color: #D4844E;
+          background: rgba(212, 132, 78, 0.06);
+          box-shadow: 0 0 0 3px rgba(212, 132, 78, 0.08);
+        }
+
+        .modal-buttons {
+          display: flex;
+          gap: 12px;
+          margin-top: 18px;
+        }
+
+        .modal-buttons button {
+          flex: 1;
+          padding: 12px;
+          border-radius: 10px;
+          border: none;
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 13px;
+          transition: all 0.2s;
+        }
+
+        .modal-btn-cancel {
+          background: #EBE0D1;
+          color: #2D5016;
+        }
+
+        .modal-btn-cancel:hover {
+          background: #DDD0C1;
+        }
+
+        @media (max-width: 768px) {
+          .track-order {
+            padding: 32px 24px;
+          }
+
+          .track-content h1 {
+            font-size: 28px;
+          }
+
+          .track-order form {
+            flex-direction: column;
+          }
+
+          .track-order input[type="text"],
+          .track-order input[type="search"] {
+            width: 100%;
+            box-sizing: border-box;
+          }
+
+          .modal-card {
+            max-width: 94%;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .track-order {
+            padding: 24px 16px;
+          }
+
+          .track-content h1 {
+            font-size: 24px;
+          }
+
+          .modal-card {
+            padding: 20px;
+          }
+
+          .modal-buttons {
+            flex-direction: column;
+          }
         }
       `}</style>
 

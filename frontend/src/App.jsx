@@ -54,22 +54,69 @@ function App() {
         <CartProvider>
           <Router>
           <style>{`
-            @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
 
-            :root { --bg-root: #0a0806; --bg-panel: #0f0c09; --gold: #e8c97a; --muted-gold: rgba(232,201,122,0.7); }
+            :root { 
+              --cream-bg: #FAF7F2;
+              --cream-secondary: #F5EFE7;
+              --beige-accent: #EBE0D1;
+              --forest-green: #2D5016;
+              --forest-green-dark: #1F3710;
+              --forest-green-light: #4A7C2E;
+              --warm-orange: #D4844E;
+              --warm-orange-light: #E5A870;
+              --text-dark: #2B2320;
+              --text-secondary: #5C524A;
+            }
 
             .container {
               max-width: 1200px;
-              margin: 24px auto;
-              padding: 0 20px;
+              margin: 28px auto;
+              padding: 0 24px;
               box-sizing: border-box;
             }
 
-            body { background: linear-gradient(180deg, var(--bg-root), var(--bg-panel)); color: rgba(255,255,255,0.9); font-family: 'DM Sans', sans-serif; }
+            body { 
+              background: linear-gradient(135deg, var(--cream-bg) 0%, var(--cream-secondary) 100%);
+              color: var(--text-dark);
+              font-family: 'DM Sans', sans-serif;
+              min-height: 100vh;
+            }
 
-            /* small helpers used across pages */
-            .btn-primary { padding: 8px 12px; background: linear-gradient(135deg,var(--gold),#f0d88e); border-radius:8px; border:none; color:#0f0c09; cursor:pointer }
-            .btn-danger { padding:8px 12px; background: rgba(255,107,107,0.12); border-radius:8px; border:0.5px solid rgba(255,107,107,0.18); color:#ff6b6b }
+            /* Helper button classes */
+            .btn-primary { 
+              padding: 11px 24px;
+              background: linear-gradient(135deg, var(--forest-green), var(--forest-green-light));
+              border-radius: 12px;
+              border: none;
+              color: white;
+              cursor: pointer;
+              font-weight: 600;
+              transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+              box-shadow: 0 8px 24px rgba(45, 80, 22, 0.15);
+            }
+            
+            .btn-primary:hover {
+              background: linear-gradient(135deg, var(--forest-green-dark), var(--forest-green));
+              transform: translateY(-2px);
+              box-shadow: 0 12px 32px rgba(45, 80, 22, 0.25);
+            }
+            
+            .btn-danger { 
+              padding: 11px 24px;
+              background: rgba(231, 76, 60, 0.08);
+              border-radius: 12px;
+              border: 1px solid rgba(231, 76, 60, 0.2);
+              color: #E74C3C;
+              cursor: pointer;
+              font-weight: 600;
+              transition: all 0.2s;
+            }
+            
+            .btn-danger:hover {
+              background: rgba(231, 76, 60, 0.12);
+              border-color: rgba(231, 76, 60, 0.4);
+            }
           `}</style>
           <Navbar />
           <div className="container">
@@ -78,6 +125,7 @@ function App() {
               {/* Customer Routes */}
               <Route path="/" element={<CustomerRoute><Home /></CustomerRoute>} />
               <Route path="/menu" element={<CustomerRoute><Menu /></CustomerRoute>} />
+              
               <Route path="/about" element={<CustomerRoute><About /></CustomerRoute>} />
               <Route path="/cart" element={<CustomerRoute><Cart /></CustomerRoute>} />
               <Route path="/checkout" element={<CustomerRoute><Checkout /></CustomerRoute>} />

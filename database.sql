@@ -103,7 +103,7 @@ INSERT INTO
     categories (name)
 VALUES ('Coffee'),
     ('Tea'),
-    ('Pastries'),
+    ('Cookies'),
     ('Snacks');
 
 -- Products (Note: In a real setup, you'd need the category IDs from the previous insert)
